@@ -1,5 +1,6 @@
 import argon2 from "argon2";
 import User from "../moduless/user.js";
+import jwt from "jsonwebtoken";
 
 //create user account---------------------------------------
 export async function createUser(req, res) {
@@ -9,12 +10,6 @@ export async function createUser(req, res) {
     console.log(userdata);
 
     const email = req.body.email;
-
-    if (userdata.isBlock) {
-      return res.status(403).json({
-        message: "Your account has block. please contact admin ",
-      });
-    }
 
     if (typeof email !== "string" || !email.includes("@")) {
       return res.status(404).json({
@@ -56,10 +51,48 @@ export async function createUser(req, res) {
 
 //login user -----------------------------------------
 
-export async function logunUser(req, res) {
+export async function loginUser(req, res) {
   try {
     const { email, password } = req.body;
 
-    const isHave = await User.find({ email });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (user.isBlock) {
+      return res.status(403).json({
+        message: "Your account has block. please contact admin ",
+      });
+    }
+
+    const isMatch = await argon2.verify(user.password, password);
+
+    if (!isMatch) {
+      res.statu(401).json({
+        message: "Inavlid Password",
+      });
+    } else {
+      const payload = {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        type: user.type,
+      };
+
+      // Create a JWT token
+      const token = jwt.sign(payload, process.env.SECRET_KEY);
+
+      res.status(200).json({
+        message: "Login successfully",
+        payload,
+        token,
+      });
+    }
+
+    console.log(user);
   } catch (error) {}
 }
