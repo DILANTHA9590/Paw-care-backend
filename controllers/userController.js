@@ -105,22 +105,60 @@ export async function deleteUser(req, res) {
   }
 
   try {
-    console.log("my request user", req.user);
     const email = req.params.email;
 
-    const result = await User.findOneAndDelete({ email });
-    console.log(result);
+    if (email) {
+      const result = await User.findOneAndDelete({ email });
+      console.log(result);
 
-    if (!result) {
-      res.status(404).json({
-        message: "User not found",
-      });
+      if (!result) {
+        res.status(404).json({
+          message: "User not found",
+        });
+      } else {
+        res.status(200).json({
+          message: `User deleted successfully`,
+        });
+      }
     } else {
-      res.status(200).json({
-        message: `User deleted successfully`,
+      // const usersArrey = req.body.usersArrey;
+
+      const arrey = [
+        "anayana@gmail.com",
+        "bnayana@gmail.com",
+        "cnayana@gmail.com",
+        "dnayana@gmail.com",
+        "enayana@gmail.com",
+      ];
+    }
+  } catch (error) {}
+}
+
+export async function getUsers(req, res) {
+  try {
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        message: "Access denied. You are not an admin user.",
       });
     }
 
-    User;
-  } catch (error) {}
+    const users = await User.find();
+
+    if (users.length === 0) {
+      return res.status(200).json({
+        message: "No Users Found",
+        users: [],
+      });
+    }
+
+    res.status(200).json({
+      message: " User retrive succsess",
+      users,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal server error. Unable to retrieve users.",
+      errorDetails: error.message,
+    });
+  }
 }
