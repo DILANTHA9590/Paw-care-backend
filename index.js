@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import userRouter from "./routes/userRoute.js";
+import jwt from "jsonwebtoken";
 
 // import jwt from "jsonwebtoken";
 
@@ -20,27 +21,27 @@ connection.once("open", () => {
   console.log("database connetced");
 });
 
-// app.use((req, res, next) => {
-//   const token = req.header("Authorization")?.replace("Bearer ", "");
+app.use((req, res, next) => {
+  const token = req.header("Authorization")?.replace("Bearer ", "");
 
-//   if (token) {
-//     jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
-//       if (error) {
-//         // If token is invalid, send a 401 Unauthorized response
-//         return res.status(401).json({ message: "Unauthorized" });
-//       }
+  if (token) {
+    jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
+      if (error) {
+        // If token is invalid, send a 401 Unauthorized response
+        return res.status(401).json({ message: "Unauthorized" });
+      }
 
-//       // If token is valid, attach decoded data to req.user
+      // If token is valid, attach decoded data to req.user
 
-//       req.user = decoded;
+      req.user = decoded;
 
-//       next(); // Continue to the next middleware/route handler
-//     });
-//   } else {
-//     // No token is present, just continue to the next middleware/route handler
-//     next();
-//   }
-// });
+      next(); // Continue to the next middleware/route handler
+    });
+  } else {
+    // No token is present, just continue to the next middleware/route handler
+    next();
+  }
+});
 
 mongoose
   .connect(mongoUrl)
