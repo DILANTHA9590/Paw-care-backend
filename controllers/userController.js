@@ -1,6 +1,7 @@
 import argon2 from "argon2";
 import User from "../modules/user.js";
 import jwt from "jsonwebtoken";
+import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
 
 //create user account---------------------------------------
 export async function createUser(req, res) {
@@ -29,8 +30,6 @@ export async function createUser(req, res) {
     const hashPassword = await argon2.hash(userdata.password);
 
     userdata.password = hashPassword;
-
-    console.log("hasoOne", userdata.password);
 
     const newUser = new User(userdata);
 
@@ -61,8 +60,9 @@ export async function loginUser(req, res) {
         message: "User not found",
       });
     }
+    console.log(user.isBlock);
 
-    if (user.isBlock) {
+    if (user.disabled) {
       return res.status(403).json({
         message: "Your account has block. please contact admin ",
       });
@@ -98,8 +98,28 @@ export async function loginUser(req, res) {
 }
 
 export async function deleteUser(req, res) {
+  if (!isAdmin(req)) {
+    return res.status(403).json({
+      message: "Access denied. You are not an admin user.",
+    });
+  }
+
   try {
-    const userId = req.params.userId;
+    console.log("my request user", req.user);
+    const email = req.params.email;
+
+    const result = await User.findOneAndDelete({ email });
+    console.log(result);
+
+    if (!result) {
+      res.status(404).json({
+        message: "User not found",
+      });
+    } else {
+      res.status(200).json({
+        message: `User deleted successfully`,
+      });
+    }
 
     User;
   } catch (error) {}
