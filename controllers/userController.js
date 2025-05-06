@@ -107,29 +107,17 @@ export async function deleteUser(req, res) {
   try {
     const email = req.params.email;
 
-    if (email) {
-      const result = await User.findOneAndDelete({ email });
-      console.log(result);
+    const result = await User.findOneAndDelete({ email });
+    console.log(result);
 
-      if (!result) {
-        res.status(404).json({
-          message: "User not found",
-        });
-      } else {
-        res.status(200).json({
-          message: `User deleted successfully`,
-        });
-      }
+    if (!result) {
+      res.status(404).json({
+        message: "User not found",
+      });
     } else {
-      // const usersArrey = req.body.usersArrey;
-
-      const arrey = [
-        "anayana@gmail.com",
-        "bnayana@gmail.com",
-        "cnayana@gmail.com",
-        "dnayana@gmail.com",
-        "enayana@gmail.com",
-      ];
+      res.status(200).json({
+        message: `User deleted successfully`,
+      });
     }
   } catch (error) {}
 }
@@ -159,6 +147,39 @@ export async function getUsers(req, res) {
     return res.status(500).json({
       message: "Internal server error. Unable to retrieve users.",
       errorDetails: error.message,
+    });
+  }
+}
+
+export async function deleteSelectedUsers(req, res) {
+  try {
+    const userArrey = req.body.emails;
+
+    console.log(userArrey);
+
+    if (!userArrey || userArrey.length === 0) {
+      return res.status(400).json({
+        message: "No emails provided for deletion",
+      });
+    }
+
+    const ishave = await User.deleteMany({ email: { $in: userArrey } });
+
+    // Check if any users were deleted
+    if (ishave.deletedCount === 0) {
+      return res.status(404).json({
+        message: "No users found with the provided emails",
+      });
+    }
+
+    res.status(200).json({
+      message: `${ishave.deletedCount} users deleted successfully`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "An error occurred while deleting users",
+      error: error.message,
     });
   }
 }
