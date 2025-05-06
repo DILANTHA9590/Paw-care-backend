@@ -1,5 +1,5 @@
 import argon2 from "argon2";
-import User from "../moduless/user.js";
+import User from "../modules/user.js";
 import jwt from "jsonwebtoken";
 
 //create user account---------------------------------------
@@ -94,5 +94,13 @@ export async function loginUser(req, res) {
     }
 
     console.log(user);
+  } catch (error) {}
+}
+
+export async function deleteUser(req, res) {
+  try {
+    const userId = req.params.userId;
+
+    User;
   } catch (error) {}
 }
