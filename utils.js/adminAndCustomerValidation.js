@@ -1,5 +1,5 @@
 export function isCustomer(req) {
-  if (!req) {
+  if (!req.user) {
     return false;
   }
 
@@ -13,7 +13,7 @@ export function isCustomer(req) {
 }
 
 export function isAdmin(req) {
-  if (!req) {
+  if (!req.user) {
     return false;
   }
 
