@@ -1,5 +1,5 @@
 import Doctor from "../modules/doctor.js";
-import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
+import { isAdmin, isDoctor } from "../utils.js/adminAndCustomerValidation.js";
 
 export async function updateDoctor(req, res) {
   try {
@@ -31,7 +31,7 @@ export async function updateDoctor(req, res) {
   }
 }
 
-export async function getDoctors(req, res) {
+export async function getAllDoctors(req, res) {
   console.log("inside this");
 
   try {
@@ -58,7 +58,42 @@ export async function getDoctors(req, res) {
           userData,
         });
       }
-    } else {
     }
-  } catch {}
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went a wrong please again",
+      error: error.message,
+    });
+  }
+}
+
+export async function getDoctor(req, res) {
+  try {
+    console.log("run inside");
+    if (!isDoctor(req)) {
+      return res.status(404).json({
+        message: "Please login to doctor account view detail",
+      });
+    }
+
+    const { email } = req.user;
+
+    console.log("inside function ", email);
+    const userdata = await Doctor.findOne({ email });
+
+    if (!userdata) {
+      return res.status(404).json({
+        message: "No found user",
+      });
+    }
+
+    res.status(200).json({
+      userdata,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went a wrong please again",
+      error: error.message,
+    });
+  }
 }
