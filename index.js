@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import userRouter from "./routes/userRoute.js";
 import jwt from "jsonwebtoken";
+import doctorRouter from "./routes/doctorRoute.js";
 
 // import jwt from "jsonwebtoken";
 
@@ -52,7 +53,11 @@ mongoose
     console.log("Coonnection Error Occured", error);
   });
 
+// MIAN ROUTES---------------------------------------------------------->
+
 app.use("/api/users", userRouter);
+app.use("/api/doctors", doctorRouter);
+
 const port = process.env.port;
 
 app.listen(port, () => {
