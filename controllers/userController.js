@@ -69,8 +69,11 @@ export async function loginUser(req, res) {
     const { email, password } = req.body;
 
     let user = await User.findOne({ email });
-    user = await Doctor.findOne({ email });
-    console.log(user);
+
+    if (!user) {
+      user = await Doctor.findOne({ email });
+    }
+
     if (!user) {
       return res.status(404).json({
         message: "User not found 🚫",
@@ -158,9 +161,9 @@ export async function getUsers(req, res) {
     }
     // const users = await User.find();
     const users = await User.find({
+      lastName: { $regex: lastName, $options: "i" },
       email: { $regex: email, $options: "i" },
       firstName: { $regex: firstName, $options: "i" },
-      lastName: { $regex: lastName, $options: "i" },
     });
     if (users.length === 0) {
       return res.status(200).json({
