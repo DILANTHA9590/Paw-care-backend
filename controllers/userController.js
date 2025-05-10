@@ -2,13 +2,15 @@ import argon2 from "argon2";
 import User from "../modules/user.js";
 import jwt from "jsonwebtoken";
 import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
+import Doctor from "../modules/doctor.js";
 
-//create user account---------------------------------------
+//create user account(ADMIN/CUSTOMER/DOCTOR)---------------------------------------
 export async function createUser(req, res) {
   try {
     const userdata = req.body;
     console.log(req.user);
 
+    // Only an admin is allowed to create admin or doctor accounts
     if (userdata.type == "admin" || userdata.type == "doctor") {
       if (!isAdmin(req)) {
         return res.status(403).json({
@@ -17,8 +19,13 @@ export async function createUser(req, res) {
         });
       }
     }
-
-    console.log(userdata);
+    // If this is a doctor account, create it and send back the result
+    if (userdata.type == "doctor") {
+      const result = await createDoctor(userdata);
+      return res.json({
+        message: result,
+      });
+    }
 
     const email = req.body.email;
 
@@ -46,7 +53,7 @@ export async function createUser(req, res) {
     newUser.save();
 
     res.status(200).json({
-      message: " Usr created success",
+      message: " User created success",
     });
 
     console.log(userdata);
@@ -59,7 +66,7 @@ export async function createUser(req, res) {
   }
 }
 
-//login user -----------------------------------------
+//login user ----------------------------------------->
 
 export async function loginUser(req, res) {
   try {
@@ -108,6 +115,7 @@ export async function loginUser(req, res) {
   } catch (error) {}
 }
 
+//DELETE ONE USER------------------------------------->
 export async function deleteUser(req, res) {
   if (!isAdmin(req)) {
     return res.status(403).json({
@@ -132,6 +140,8 @@ export async function deleteUser(req, res) {
     }
   } catch (error) {}
 }
+
+// GET ALL USERS-------------------------------------->
 
 export async function getUsers(req, res) {
   console.log("run this");
@@ -171,6 +181,7 @@ export async function getUsers(req, res) {
   }
 }
 
+//DELETE SELECTED  MULTIPLE USERS---------------------->
 export async function deleteSelectedUsers(req, res) {
   try {
     const userArrey = req.body.emails;
@@ -203,5 +214,37 @@ export async function deleteSelectedUsers(req, res) {
       message: "An error occurred while deleting users",
       error: error.message,
     });
+  }
+}
+
+// CREATE DOCOTOR-------------------------------------->
+export async function createDoctor(user) {
+  const { email } = user;
+  console.log("doctor email", email);
+  try {
+    console.log("inside function", user);
+    if (typeof email !== "string" || !email.includes("@")) {
+      return { message: "Invalid imail format" };
+    }
+
+    const isHave = await Doctor.findOne({ email });
+    console.log(isHave);
+
+    if (isHave) {
+      return { message: "An account with this email already exists" };
+    }
+
+    const hashPassword = await argon2.hash(user.password);
+
+    user.password = hashPassword;
+
+    const newUser = await new Doctor(user);
+
+    newUser.save();
+
+    return { message: "Doctor account created successfully" };
+  } catch (error) {
+    console.log(error);
+    return { message: "Server error while creating doctor" };
   }
 }
