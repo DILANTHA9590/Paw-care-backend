@@ -1,8 +1,16 @@
 import Doctor from "../modules/doctor.js";
 import { isAdmin, isDoctor } from "../utils.js/adminAndCustomerValidation.js";
 
+// UPDATE DOCTOR DETAILS---------------------------------------------------->
 export async function updateDoctor(req, res) {
   try {
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. please login to admin account.",
+      });
+    }
+
     const email = req.params.email;
 
     const userData = req.body;
@@ -31,19 +39,19 @@ export async function updateDoctor(req, res) {
   }
 }
 
+//GET ALL DOCTORS DETAILS---------------------------------------------------->
 export async function getAllDoctors(req, res) {
   console.log("inside this");
 
   try {
     if (isAdmin(req)) {
       const { email = "", name = "", type = "" } = req.body;
-      console.log(email);
 
       // const userData = await Doctor.find();
       const userData = await Doctor.find({
-        type: { $regex: type, $options: "i" }, // Matches doctorId with a case-insensitive regex
-        email: { $regex: email, $options: "i" }, // Matches email with a case-insensitive regex
-        name: { $regex: name, $options: "i" }, // Matches name with a case-insensitive regex
+        type: { $regex: type, $options: "i" },
+        email: { $regex: email, $options: "i" },
+        name: { $regex: name, $options: "i" },
       });
 
       if (userData.length === 0) {
@@ -67,6 +75,7 @@ export async function getAllDoctors(req, res) {
   }
 }
 
+// GET LOGIN DOCTOR DATA ------------------------------------------------------>
 export async function getDoctor(req, res) {
   try {
     console.log("run inside");
