@@ -7,6 +7,16 @@ import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
 export async function createUser(req, res) {
   try {
     const userdata = req.body;
+    console.log(req.user);
+
+    if (userdata.type == "admin" || userdata.type == "doctor") {
+      if (!isAdmin(req)) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. please login to admin account.",
+        });
+      }
+    }
 
     console.log(userdata);
 
@@ -41,6 +51,7 @@ export async function createUser(req, res) {
 
     console.log(userdata);
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: "An unexpected error occurred. Please try again later.",
       message: error.message,
@@ -123,27 +134,36 @@ export async function deleteUser(req, res) {
 }
 
 export async function getUsers(req, res) {
+  console.log("run this");
+  const { email = "", firstName = "", lastName = "" } = req.query;
+  console.log(email);
+  console.log(firstName);
+  console.log(lastName);
+
   try {
     if (!isAdmin(req)) {
       return res.status(403).json({
         message: "Access denied. You are not an admin user.",
       });
     }
-
-    const users = await User.find();
-
+    // const users = await User.find();
+    const users = await User.find({
+      email: { $regex: email, $options: "i" },
+      firstName: { $regex: firstName, $options: "i" },
+      lastName: { $regex: lastName, $options: "i" },
+    });
     if (users.length === 0) {
       return res.status(200).json({
         message: "No Users Found",
         users: [],
       });
     }
-
     res.status(200).json({
       message: " User retrive succsess",
       users,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       message: "Internal server error. Unable to retrieve users.",
       errorDetails: error.message,
@@ -156,6 +176,8 @@ export async function deleteSelectedUsers(req, res) {
     const userArrey = req.body.emails;
 
     console.log(userArrey);
+
+    console.log(req);
 
     if (!userArrey || userArrey.length === 0) {
       return res.status(400).json({
