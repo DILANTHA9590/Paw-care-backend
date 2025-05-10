@@ -51,6 +51,10 @@ const doctorSchema = new mongoose.Schema({
   rating: {
     type: Number,
   },
+  type: {
+    type: String,
+    default: "doctor",
+  },
 });
 
 const Doctor = mongoose.model("Doctor", doctorSchema);
