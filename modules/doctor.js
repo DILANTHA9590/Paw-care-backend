@@ -7,10 +7,15 @@ const doctorSchema = new mongoose.Schema({
       "https://th.bing.com/th/id/OIP.CsrrmEmMiAk5uwQ-KFOTcgHaHa?rs=1&pid=ImgDetMain",
   },
 
-  email: {
+  doctorId: {
     type: String,
     required: true,
     unique: true,
+  },
+
+  email: {
+    type: String,
+    required: true,
   },
 
   phone: {
