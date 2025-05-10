@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
 import Doctor from "../modules/doctor.js";
 
-//create user account(ADMIN/CUSTOMER/DOCTOR)---------------------------------------
+//create user account(ADMIN/CUSTOMER/DOCTOR)--------->
 export async function createUser(req, res) {
   try {
     const userdata = req.body;
@@ -36,7 +36,6 @@ export async function createUser(req, res) {
     }
 
     const isHave = await User.findOne({ email });
-    console.log(isHave);
 
     if (isHave) {
       return res.status(403).json({
@@ -55,8 +54,6 @@ export async function createUser(req, res) {
     res.status(200).json({
       message: " User created success",
     });
-
-    console.log(userdata);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -67,18 +64,18 @@ export async function createUser(req, res) {
 }
 
 //login user ----------------------------------------->
-
 export async function loginUser(req, res) {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+    user = await Doctor.findOne({ email });
+    console.log(user);
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
+        message: "User not found 🚫",
       });
     }
-    console.log(user.isBlock);
 
     if (user.disabled) {
       return res.status(403).json({
@@ -98,6 +95,7 @@ export async function loginUser(req, res) {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        name: user.name,
         type: user.type,
       };
 
@@ -110,9 +108,12 @@ export async function loginUser(req, res) {
         token,
       });
     }
-
-    console.log(user);
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({
+      message:
+        "An unexpected error occurred while login the user. Please try again later.",
+    });
+  }
 }
 
 //DELETE ONE USER------------------------------------->
@@ -142,7 +143,6 @@ export async function deleteUser(req, res) {
 }
 
 // GET ALL USERS-------------------------------------->
-
 export async function getUsers(req, res) {
   console.log("run this");
   const { email = "", firstName = "", lastName = "" } = req.query;
@@ -181,7 +181,7 @@ export async function getUsers(req, res) {
   }
 }
 
-//DELETE SELECTED  MULTIPLE USERS---------------------->
+//DELETE SELECTED  MULTIPLE USERS--------------------->
 export async function deleteSelectedUsers(req, res) {
   try {
     const userArrey = req.body.emails;
@@ -217,7 +217,7 @@ export async function deleteSelectedUsers(req, res) {
   }
 }
 
-// CREATE DOCOTOR-------------------------------------->
+//CREATE DOCOTOR-------------------------------------->
 export async function createDoctor(user) {
   const { email } = user;
   console.log("doctor email", email);
