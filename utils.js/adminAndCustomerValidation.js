@@ -29,8 +29,7 @@ export function isDoctor(req) {
     return false;
   }
 
-  if (req.user.type != "doctor") {
-    console.log(req.user.type);
+  if (req.user?.type != "doctor") {
     return false;
   } else {
     return true;
