@@ -14,6 +14,6 @@ userRouter.post("/login", loginUser);
 userRouter.delete("/selectusers", deleteSelectedUsers);
 
 userRouter.get("/", getUsers);
-userRouter.delete("/:email", deleteUser);
+userRouter.delete("/:doctorId", deleteUser);
 
 export default userRouter;
