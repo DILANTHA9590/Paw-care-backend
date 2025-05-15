@@ -3,6 +3,7 @@ import {
   deleteDoctor,
   getAllDoctors,
   getDoctor,
+Add function to filter available doctors based on today's day  getDoctorsByDays,
   updateDoctor,
 } from "../controllers/doctorController.js";
 
@@ -12,5 +13,6 @@ doctorRouter.get("/", getAllDoctors);
 doctorRouter.get("/getdoctor", getDoctor);
 doctorRouter.put("/:email", updateDoctor);
 doctorRouter.delete("/:doctorId", deleteDoctor);
+doctorRouter.get("/getbydays", getDoctorsByDays);
 
 export default doctorRouter;
