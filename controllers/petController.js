@@ -26,3 +26,30 @@ export async function createPet(req, res) {
     });
   }
 }
+
+export async function updatePetdetails(req, res) {
+  try {
+    const { petId } = req.params.petId;
+    const updateData = req.body;
+
+    const updatedUser = await Doctor.findOneAndUpdate(
+      { petId: petId },
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(200).json({
+        message: "Pet id not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Deleted Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: " Something went a wrong please try again later",
+    });
+  }
+}
