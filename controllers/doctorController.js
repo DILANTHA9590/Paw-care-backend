@@ -105,11 +105,9 @@ export async function getDoctor(req, res) {
   }
 }
 
-export async function deleteDoctor(req, res) {
-  const now = new Date();
-  const time = now.toTimeString().split(" ")[0]; // returns HH:MM:SS
-  console.log(now.toDateString());
+// Delete a doctor profile by ID------------------------------------------------------------->
 
+export async function deleteDoctor(req, res) {
   try {
     if (!isAdmin(req)) {
       return res.status(403).json({
@@ -139,7 +137,10 @@ export async function deleteDoctor(req, res) {
   }
 }
 
+//Create functtion for get doctors bydays-------------------------------------------->
+
 export async function getDoctorsByDays(req, res) {
+  console.log(req.user);
   try {
     const today = new Date();
     const days = [
@@ -156,7 +157,6 @@ export async function getDoctorsByDays(req, res) {
     const dayName = days[today.getDay()];
 
     const doctors = await Doctor.find();
-    console.log(doctors);
 
     ///filtered  doctors by days
     const filteredDoctors = doctors.filter((val) => {
@@ -175,7 +175,8 @@ export async function getDoctorsByDays(req, res) {
     }
   } catch (error) {
     res.status(500).json({
-      message: "Something went ap;[k';lk';lk';lkpk,",
+      message: "Something went a wrong please try again ",
+      error: error.message,
     });
   }
 }
