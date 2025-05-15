@@ -138,3 +138,44 @@ export async function deleteDoctor(req, res) {
     });
   }
 }
+
+export async function getDoctorsByDays(req, res) {
+  try {
+    const today = new Date();
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+
+    // get today day name
+    const dayName = days[today.getDay()];
+
+    const doctors = await Doctor.find();
+    console.log(doctors);
+
+    ///filtered  doctors by days
+    const filteredDoctors = doctors.filter((val) => {
+      const days = val.availabledays.split(",");
+      return days.includes("Saturday");
+    });
+
+    if (filteredDoctors.length == 0) {
+      res.status(200).json({
+        message: "No doctors found",
+      });
+    } else {
+      res.status(200).json({
+        filteredDoctors,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went ap;[k';lk';lk';lkpk,",
+    });
+  }
+}
