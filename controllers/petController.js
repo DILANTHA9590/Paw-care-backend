@@ -77,3 +77,31 @@ export async function DeletePetdetails(req, res) {
     });
   }
 }
+
+export async function getAllPets(req, res) {
+  try {
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        message: "Unauthorized access, please login with an admin account",
+      });
+    }
+
+    const petData = await Pet.find();
+
+    if (petData.length == 0) {
+      return res.status(200).json({
+        message: "No available pet profiles",
+      });
+    }
+
+    res.status(200).json({
+      message: "Pet data retrieved successfully",
+      petData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: " Something went a wrong please try again later",
+      error: error.message,
+    });
+  }
+}
