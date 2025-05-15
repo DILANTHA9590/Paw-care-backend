@@ -1,8 +1,14 @@
 import express from "express";
-import { createPet } from "../controllers/petController";
+import {
+  createPet,
+  DeletePetdetails,
+  updatePetdetails,
+} from "../controllers/petController";
 
 const petRouter = express.Router();
 
-userRouter.post("/", createPet);
+petRouter.post("/", createPet);
+petRouter.put("/:petId", updatePetdetails);
+petRouter.delete("/:petId", DeletePetdetails);
 
 export default petRouter;
