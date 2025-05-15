@@ -50,6 +50,30 @@ export async function updatePetdetails(req, res) {
   } catch (error) {
     res.status(500).json({
       message: " Something went a wrong please try again later",
+      error: error.message,
+    });
+  }
+}
+
+export async function DeletePetdetails(req, res) {
+  try {
+    const { petId } = req.params;
+
+    const isHave = await Doctor.findOneAndDelete({ petId });
+
+    if (!isHave) {
+      return res.status(200).json({
+        message: "Pet id not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Deleted  Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: " Something went a wrong please try again later",
+      error: error.message,
     });
   }
 }
