@@ -29,7 +29,7 @@ export async function createPet(req, res) {
 
 export async function updatePetdetails(req, res) {
   try {
-    const { petId } = req.params.petId;
+    const { petId } = req.params;
     const updateData = req.body;
 
     const updatedUser = await Doctor.findOneAndUpdate(
@@ -45,7 +45,7 @@ export async function updatePetdetails(req, res) {
     }
 
     res.status(200).json({
-      message: "Deleted Successfully",
+      message: "Updated Successfully",
     });
   } catch (error) {
     res.status(500).json({
