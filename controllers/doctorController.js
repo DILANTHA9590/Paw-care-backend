@@ -45,9 +45,7 @@ export async function getAllDoctors(req, res) {
 
   try {
     if (isAdmin(req)) {
-      const { email = "", name = "", type = "" } = req.body;
-
-      // const userData = await Doctor.find();
+      const { email = "", name = "", type = "" } = req.query;
       const userData = await Doctor.find({
         type: { $regex: type, $options: "i" },
         email: { $regex: email, $options: "i" },
@@ -100,6 +98,40 @@ export async function getDoctor(req, res) {
       userdata,
     });
   } catch (error) {
+    res.status(500).json({
+      message: "Something went a wrong please again",
+      error: error.message,
+    });
+  }
+}
+
+export async function deleteDoctor(req, res) {
+  const now = new Date();
+  const time = now.toTimeString().split(" ")[0]; // returns HH:MM:SS
+  console.log(now.toDateString());
+
+  try {
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        message: "Unautherized Access,Please login to admin account",
+      });
+    }
+
+    const { doctorId } = req.params;
+
+    const result = await Doctor.findOneAndDelete({ doctorId });
+
+    if (!result) {
+      return res.status(200).json({
+        message: "Doctor Id  not Found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Delete completed",
+    });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: "Something went a wrong please again",
       error: error.message,
