@@ -3,7 +3,7 @@ import {
   deleteDoctor,
   getAllDoctors,
   getDoctor,
-Add function to filter available doctors based on today's day  getDoctorsByDays,
+  getDoctorsByDays,
   updateDoctor,
 } from "../controllers/doctorController.js";
 
