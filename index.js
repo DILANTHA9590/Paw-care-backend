@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import userRouter from "./routes/userRoute.js";
 import jwt from "jsonwebtoken";
 import doctorRouter from "./routes/doctorRoute.js";
+import petRouter from "./routes/petRoute.js";
 
 // import jwt from "jsonwebtoken";
 
@@ -57,6 +58,7 @@ mongoose
 
 app.use("/api/users", userRouter);
 app.use("/api/doctors", doctorRouter);
+app.use("/api/pets", petRouter);
 
 const port = process.env.port;
 
