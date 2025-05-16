@@ -3,6 +3,8 @@ import User from "../modules/user.js";
 import jwt from "jsonwebtoken";
 import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
 import Doctor from "../modules/doctor.js";
+import nodemailer from "nodemailer";
+import Otp from "../modules/otp.js";
 
 //create user account(ADMIN/CUSTOMER/DOCTOR)--------->
 export async function createUser(req, res) {
@@ -20,12 +22,15 @@ export async function createUser(req, res) {
       }
     }
     // If this is a doctor account, create it and send back the result
+
     if (userdata.type == "doctor") {
       const result = await createDoctor(userdata);
       return res.json({
         message: result,
       });
     }
+
+    // this is admin admin and customer account creation part------------------------------->
 
     const email = req.body.email;
 
@@ -50,6 +55,9 @@ export async function createUser(req, res) {
     const newUser = new User(userdata);
 
     newUser.save();
+
+    //send user account create  email for Otp database for email veryfication
+    saveOtpAndEmail(email);
 
     res.status(200).json({
       message: " User created success",
@@ -129,6 +137,7 @@ export async function deleteUser(req, res) {
 
   try {
     const email = req.params.email;
+    console.log(email);
 
     const result = await User.findOneAndDelete({ email });
     console.log(result);
@@ -250,4 +259,54 @@ export async function createDoctor(user) {
     console.log(error);
     return { message: "Server error while creating doctor" };
   }
+}
+
+export async function saveOtpAndEmail(email) {
+  const otp = Math.floor(1000 + Math.random() * 9000);
+
+  sendOtpEmail(email, otp);
+
+  const data = {
+    otp: otp,
+    email: email,
+  };
+
+  const newOtp = new Otp(data);
+
+  await newOtp.save();
+}
+
+export function sendOtpEmail(email, otp) {
+  const transport = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "dilantha9590@gmail.com",
+      pass: process.env.googlekey,
+    },
+  });
+
+  const message = {
+    from: "dilantha9590@gmail.com",
+    to: email,
+    subject: "Your OTP Code for Verification",
+    html: `
+    <div style="font-family: Arial, sans-serif; color: #333;">
+      <h2>Verify Your PawCare Account</h2>
+      <p>Your OTP code is:</p>
+      <p style="font-size: 28px; font-weight: bold; color: #4CAF50;">${otp}</p>
+      <p>This code is valid for 5 minutes.</p>
+    </div>
+  `,
+  };
+
+  transport.sendMail(message, (err, info) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(info);
+    }
+  });
 }
