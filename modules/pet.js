@@ -6,6 +6,12 @@ const petSchema = new mongoose.Schema({
     default:
       "https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Dog-512.png", // Default pet image
   },
+
+  petId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   userId: {
     type: String,
     // reference to User collection
