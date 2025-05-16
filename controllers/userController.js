@@ -261,6 +261,7 @@ export async function createDoctor(user) {
   }
 }
 
+// Function to generate a random 4-digit OTP and save it to the database with the user's email----------------->
 export async function saveOtpAndEmail(email) {
   const otp = Math.floor(1000 + Math.random() * 9000);
 
@@ -276,6 +277,7 @@ export async function saveOtpAndEmail(email) {
   await newOtp.save();
 }
 
+// Function to send OTP email using Nodemailer-------------------------------------------->
 export function sendOtpEmail(email, otp) {
   const transport = nodemailer.createTransport({
     service: "gmail",
