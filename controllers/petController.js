@@ -118,6 +118,7 @@ export async function getAllPets(req, res) {
   }
 }
 
+// 📋 Get all pets registered by the currently logged-in user (customer or admin)
 export async function getMyPets(req, res) {
   try {
     if (!isCustomer(req)) {
