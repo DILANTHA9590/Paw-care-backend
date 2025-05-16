@@ -1,9 +1,20 @@
 import mongoose from "mongoose";
 
 const RewiesSchema = new mongoose.Schema({
+  reviewId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+
   doctorId: {
     type: String,
     required: true,
+  },
+  reviewId: {
+    type: String,
+    required: true,
+    unique: true,
   },
 
   customerId: {
