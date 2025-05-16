@@ -1,19 +1,26 @@
 import { isAdmin, isCustomer } from "../utils.js/adminAndCustomerValidation.js";
 import Pet from "../modules/pet.js";
 
+//  Create a new pet account-------------------------------------------------->
 export async function createPet(req, res) {
   try {
     const petData = req.body;
 
-    if (!isCustomer(req) || isAdmin(req)) {
+    if (!isCustomer(req) && !isAdmin(req)) {
       return res.status(403).json({
         message: "Please loging first ",
       });
     }
 
-    petData.userId = req.user.email;
-    const newpet = new Pet(petData);
+    // Generate pet ID using pet count
 
+    const count = await Pet.countDocuments();
+    const petId = "PID00" + count;
+
+    petData.petId = petId;
+    petData.userId = req.user.email;
+
+    const newpet = new Pet(petData);
     await newpet.save();
 
     res.status(200).json({
@@ -26,6 +33,8 @@ export async function createPet(req, res) {
     });
   }
 }
+
+// Update  pet details. ---------------------------------------------->
 
 export async function updatePetdetails(req, res) {
   try {
@@ -55,6 +64,7 @@ export async function updatePetdetails(req, res) {
   }
 }
 
+//  Delete a pet profile by petId.------------------------------------------->
 export async function DeletePetdetails(req, res) {
   try {
     const { petId } = req.params;
@@ -77,6 +87,8 @@ export async function DeletePetdetails(req, res) {
     });
   }
 }
+
+//  Retrieve all pet profiles-------------------------------------------------->
 
 export async function getAllPets(req, res) {
   try {
