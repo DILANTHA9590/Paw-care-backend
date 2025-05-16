@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+
+  isverify: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const User = mongoose.model("User", userSchema);
