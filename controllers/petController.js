@@ -41,7 +41,7 @@ export async function updatePetdetails(req, res) {
     const { petId } = req.params;
     const updateData = req.body;
 
-    const updatedUser = await Doctor.findOneAndUpdate(
+    const updatedUser = await Pet.findOneAndUpdate(
       { petId: petId },
       { $set: updateData },
       { new: true }
@@ -69,7 +69,7 @@ export async function DeletePetdetails(req, res) {
   try {
     const { petId } = req.params;
 
-    const isHave = await Doctor.findOneAndDelete({ petId });
+    const isHave = await Pet.findOneAndDelete({ petId });
 
     if (!isHave) {
       return res.status(200).json({
