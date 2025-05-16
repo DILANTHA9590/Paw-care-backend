@@ -3,6 +3,7 @@ import {
   createPet,
   DeletePetdetails,
   getAllPets,
+  getMyPets,
   updatePetdetails,
 } from "../controllers/petController.js";
 
@@ -12,5 +13,6 @@ petRouter.post("/", createPet);
 petRouter.put("/:petId", updatePetdetails);
 petRouter.delete("/:petId", DeletePetdetails);
 petRouter.get("/", getAllPets);
+petRouter.get("/mypets", getMyPets);
 
 export default petRouter;
