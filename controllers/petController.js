@@ -117,3 +117,32 @@ export async function getAllPets(req, res) {
     });
   }
 }
+
+export async function getMyPets(req, res) {
+  try {
+    if (!isCustomer(req)) {
+      return res.status(403).json({
+        message: "Unauthorized access, please login with a customer account",
+      });
+    }
+
+    // Filter pets by user's email
+    const petData = await Pet.find({ userId: req.user.email });
+
+    if (petData.length == 0) {
+      return res.status(200).json({
+        message: "You have no registered pets",
+      });
+    }
+
+    res.status(200).json({
+      message: "Your pets retrieved successfully",
+      petData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: " Something went a wrong please try again later",
+      error: error.message,
+    });
+  }
+}
