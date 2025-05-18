@@ -161,7 +161,7 @@ export async function getDoctorsByDays(req, res) {
     ///filtered  doctors by days
     const filteredDoctors = doctors.filter((val) => {
       const days = val.availabledays.split(",");
-      return days.includes("Saturday");
+      return days.includes(dayName);
     });
 
     if (filteredDoctors.length == 0) {
