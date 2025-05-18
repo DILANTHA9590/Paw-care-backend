@@ -7,14 +7,15 @@ const RewiesSchema = new mongoose.Schema({
     unique: true,
   },
 
+  // accept: {
+  //   type: Boolean,
+  //   required: true,
+
+  // },
+
   doctorId: {
     type: String,
     required: true,
-  },
-  reviewId: {
-    type: String,
-    required: true,
-    unique: true,
   },
 
   customerId: {
