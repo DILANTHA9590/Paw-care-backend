@@ -5,7 +5,7 @@ import User from "../modules/user.js";
 export async function VerifyEmail(req, res) {
   try {
     const { otp, email } = req.body;
-
+    console.log(email);
     // Find the latest OTP entry for the given email
     const getOtp = await Otp.findOne({ email }).sort({ date: -1 });
 
@@ -22,8 +22,11 @@ export async function VerifyEmail(req, res) {
         message: "Invalid OTP. Please check and try again.",
       });
     }
-
-    await User.updateOne({ email }, { isverify: true });
+    const isverify = {
+      isverify: true,
+    };
+    const newdata = await User.updateOne({ email }, isverify);
+    console.log(newdata);
 
     return res.status(200).json({
       message: "Email verified successfully.",
