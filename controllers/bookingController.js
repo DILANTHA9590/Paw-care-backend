@@ -47,7 +47,7 @@ export async function createBooking(req, res) {
   }
 }
 
-//getAll booking for Admin
+//getAll booking for Admin------------------------------------------------------------------->
 
 export async function getAllBooking(req, res) {
   try {
@@ -59,8 +59,8 @@ export async function getAllBooking(req, res) {
 
     const { searchQuery = "" } = req.query;
 
-    console.log(searchQuery);
-    //
+    // Search bookings by bookingId, email, status, or date`
+
     const bookingData = await Booking.find({
       $or: [
         { bookingId: { $regex: searchQuery } },
@@ -90,6 +90,7 @@ export async function getAllBooking(req, res) {
 //delete booking for admin------------------------------------------>
 
 export async function deleteBooking(req, res) {
+  console.log("inside delete function");
   try {
     // Check admin access
     if (!isAdmin(req)) {
@@ -98,7 +99,7 @@ export async function deleteBooking(req, res) {
       });
     }
 
-    const { bookingId } = req.params;
+    const bookingId = req.params.bookingId.trim();
 
     console.log(bookingId);
 
@@ -123,10 +124,54 @@ export async function deleteBooking(req, res) {
     });
   }
 }
+// update booking details------------------------------------------>
 
-//admin can update booking
+export async function updateBooking(req, res) {
+  console.log("inside update function");
+  try {
+    if (!isAdmin(req)) {
+      return res.status(404).json({
+        message: "Access denied. Please log in as an admin to continue.",
+      });
+    }
+
+    //get bookingid and dta
+    const bookingId = req.params.bookingId.trim();
+    const bookingData = req.body;
+
+    if (!bookingId || bookingId.trim() === "") {
+      return res.status(400).json({
+        message: "Invalid booking ID.",
+      });
+    }
+
+    const updateBooking = await Booking.findOneAndUpdate(
+      { bookingId },
+      bookingData
+    );
+
+    if (!updateBooking) {
+      return res.status(404).json({
+        message: "Booking id not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Booking updated successfully.",
+    });
+
+    console.log(updateBooking);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Server error. Please try again.",
+      error: error.message,
+    });
+  }
+}
 
 // get booking for doctor own doctor id
+
 // doctor id
 
 // doctor can  update completd
