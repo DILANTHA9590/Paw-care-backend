@@ -46,3 +46,56 @@ export async function createBooking(req, res) {
     });
   }
 }
+
+//getAll booking for Admin
+
+export async function getAllBooking(req, res) {
+  try {
+    if (!isAdmin(req)) {
+      return res.status(200).json({
+        message: "Access denied. Please log in as an admin to continue.",
+      });
+    }
+
+    const { searchQuery = "" } = req.query;
+
+    console.log(searchQuery);
+    //
+    const bookingData = await Booking.find({
+      $or: [
+        { bookingId: { $regex: searchQuery } },
+        { email: { $regex: searchQuery, $options: "i" } },
+        { status: { $regex: searchQuery, $options: "i" } },
+      ],
+    }).sort({ createdAt: -1 });
+
+    if (bookingData.length == 0) {
+      return res.status(404).json({
+        message: " No found",
+      });
+    }
+
+    res.status(200).json({
+      bookingData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Something went awrong please try again",
+      error: error.message,
+    });
+  }
+}
+
+//delete booking for admin
+
+//admin can update booking
+
+// get booking for doctor own doctor id
+// doctor id
+
+// doctor can  update completd
+//doctor id
+
+//doctor can find booking history  it completd always it come  doctor id
+//on;y acces doctor id
