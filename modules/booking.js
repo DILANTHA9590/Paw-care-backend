@@ -33,12 +33,18 @@ const bookingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: "pending",
+    default: "confirm",
   },
   // i use this handle user reviws
   isConfirm: {
     type: Boolean,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const Booking = mongoose.model("User", bookingSchema);
+const Booking = mongoose.model("Booking", bookingSchema);
+
+export default Booking;
