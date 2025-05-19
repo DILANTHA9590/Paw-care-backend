@@ -87,7 +87,42 @@ export async function getAllBooking(req, res) {
   }
 }
 
-//delete booking for admin
+//delete booking for admin------------------------------------------>
+
+export async function deleteBooking(req, res) {
+  try {
+    // Check admin access
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        message: "Access denied. Only admins can delete bookings.",
+      });
+    }
+
+    const { bookingId } = req.params;
+
+    console.log(bookingId);
+
+    const deletedBooking = await Booking.findOneAndDelete({
+      bookingId: bookingId,
+    });
+
+    if (!deletedBooking) {
+      return res.status(404).json({
+        message: "Booking not found.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Booking deleted successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Server error. Please try again.",
+      error: error.message,
+    });
+  }
+}
 
 //admin can update booking
 
