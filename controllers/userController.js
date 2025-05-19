@@ -12,6 +12,12 @@ export async function createUser(req, res) {
     const userdata = req.body;
     console.log(req.user);
 
+    if (!userdata.password || userdata.password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password is required (min 6 chars)" });
+    }
+
     // Only an admin is allowed to create admin or doctor accounts
     if (userdata.type == "admin" || userdata.type == "doctor") {
       if (!isAdmin(req)) {
@@ -57,7 +63,7 @@ export async function createUser(req, res) {
     newUser.save();
 
     //send user account create  email for Otp database for email veryfication
-    saveOtpAndEmail(email);
+    await saveOtpAndEmail(email);
 
     res.status(200).json({
       message: " User created success",
