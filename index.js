@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import doctorRouter from "./routes/doctorRoute.js";
 import petRouter from "./routes/petRoute.js";
 import otpRouter from "./routes/otpRoute.js";
+import bookingRouter from "./routes/bookingRoute.js";
 
 // import jwt from "jsonwebtoken";
 
@@ -61,6 +62,7 @@ app.use("/api/users", userRouter);
 app.use("/api/doctors", doctorRouter);
 app.use("/api/pets", petRouter);
 app.use("/api/otp", otpRouter);
+app.use("/api/bookings", bookingRouter);
 
 const port = process.env.port;
 
