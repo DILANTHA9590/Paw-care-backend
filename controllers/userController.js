@@ -10,7 +10,6 @@ import Otp from "../modules/otp.js";
 export async function createUser(req, res) {
   try {
     const userdata = req.body;
-    console.log(req.user);
 
     if (!userdata.password || userdata.password.length < 6) {
       return res
@@ -144,7 +143,6 @@ export async function deleteUser(req, res) {
 
   try {
     const email = req.params.email;
-    console.log(email);
 
     const result = await User.findOneAndDelete({ email });
     console.log(result);
