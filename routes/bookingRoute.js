@@ -15,5 +15,6 @@ bookingRouter.get("/", getAllBooking);
 bookingRouter.delete("/:bookingId", deleteBooking);
 bookingRouter.put("/:bookingId", updateBooking);
 bookingRouter.get("/doctor/:bookingId", getBookingsByDoctorId);
+bookingRouter.get("/doctor/status/:bookingId", updateCompletedBooking);
 
 export default bookingRouter;
