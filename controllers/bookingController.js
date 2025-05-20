@@ -1,6 +1,12 @@
 import Booking from "../modules/booking.js";
 import moment from "moment";
-import { isAdmin, isCustomer } from "../utils.js/adminAndCustomerValidation.js";
+import {
+  isAdmin,
+  isCustomer,
+  isDoctor,
+} from "../utils.js/adminAndCustomerValidation.js";
+
+//create booking----------------------------------------------------------->
 export async function createBooking(req, res) {
   try {
     if (!isAdmin(req) && !isCustomer(req)) {
@@ -135,7 +141,7 @@ export async function updateBooking(req, res) {
       });
     }
 
-    //get bookingid and dta
+    //get bookingid and updated data
     const bookingId = req.params.bookingId.trim();
     const bookingData = req.body;
 
@@ -159,8 +165,6 @@ export async function updateBooking(req, res) {
     res.status(200).json({
       message: "Booking updated successfully.",
     });
-
-    console.log(updateBooking);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -170,11 +174,40 @@ export async function updateBooking(req, res) {
   }
 }
 
-// get booking for doctor own doctor id
+// get bookings for the logged-in doctor by doctor ID------------------------------------------------->
 
-// doctor id
+export async function getBookingsByDoctorId(req, res) {
+  try {
+    if (!isDoctor(req)) {
+      return res.status(403).json({
+        message: "Access denied. Please log in as an doctor to continue.",
+      });
+    }
 
-// doctor can  update completd
+    const doctorBookings = await Booking.find(
+      { doctorId: req.user.doctorId },
+      { status: "confirm" }
+    );
+
+    if (doctorid.length == 0) {
+      return res.status(404).json({
+        message: "No Booking Found",
+      });
+    }
+
+    res.status(200).json({
+      doctorBookings,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error. Please try again.",
+      error: error.message,
+    });
+  }
+}
+
+// Doctor can mark the booking as 'Completed' after the appointment----------------------------------------------------------->
+
 //doctor id
 
 //doctor can find booking history  it completd always it come  doctor id
