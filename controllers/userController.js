@@ -114,6 +114,7 @@ export async function loginUser(req, res) {
         lastName: user.lastName,
         name: user.name,
         type: user.type,
+        doctorId: user?.doctorId,
       };
 
       // Create a JWT token
