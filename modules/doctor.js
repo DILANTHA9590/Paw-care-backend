@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const doctorSchema = new mongoose.Schema({
-  Image: {
+  image: {
     type: String,
     default:
       "https://th.bing.com/th/id/OIP.CsrrmEmMiAk5uwQ-KFOTcgHaHa?rs=1&pid=ImgDetMain",
