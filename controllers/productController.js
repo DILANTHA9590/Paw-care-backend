@@ -78,3 +78,41 @@ export async function deleteProduct(req, res) {
     });
   }
 }
+
+export async function updateProduct(req, res) {
+  try {
+    // Only allow admins
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        message: "Access denied. Admins only.",
+      });
+    }
+
+    const { productId } = req.params;
+    const updatedData = req.body;
+
+    // Find and update the product
+    const updatedProduct = await Product.findOneAndUpdate(
+      { productId },
+      updatedData,
+      { new: true } // return the updated document
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({
+        message: `Product with ID '${productId}' not found`,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Product updated successfully",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Update error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
