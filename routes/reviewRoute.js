@@ -8,6 +8,6 @@ const reviewRouter = express.Router();
 
 reviewRouter.post("/", createReview);
 // routes/reviewRouter.js
-reviewRouter.get("/doctor/:doctorId", getReviewsByDoctorId);
+reviewRouter.get("/:doctorId", getReviewsByDoctorId);
 
 export default reviewRouter;
