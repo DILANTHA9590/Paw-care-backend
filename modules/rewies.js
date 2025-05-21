@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
+const RewiesSchema = new mongoose.Schema({
   // accept: {
-  //   type: Boolean,const RewiesSchema = new mongoose.Schema({
-
+  //   type: Boolean,
   //   required: true,
 
   // },
