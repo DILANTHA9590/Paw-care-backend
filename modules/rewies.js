@@ -1,14 +1,8 @@
 import mongoose from "mongoose";
 
-const RewiesSchema = new mongoose.Schema({
-  reviewId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-
   // accept: {
-  //   type: Boolean,
+  //   type: Boolean,const RewiesSchema = new mongoose.Schema({
+
   //   required: true,
 
   // },
