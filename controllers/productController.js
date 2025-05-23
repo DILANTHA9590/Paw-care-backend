@@ -11,7 +11,7 @@ export async function createProduct(req, res) {
     }
 
     const productData = req.body;
-
+    //validate need fileds
     const requiredFields = [
       "productId",
       "productName",
@@ -20,7 +20,7 @@ export async function createProduct(req, res) {
       "lastPrice",
       "image",
     ];
-
+    //field validate process
     const validationErrors = checkRequredField(productData, requiredFields);
     if (validationErrors.length > 0) {
       return res.status(400).json({
@@ -112,6 +112,29 @@ export async function updateProduct(req, res) {
     console.error("Update error:", error);
     return res.status(500).json({
       message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
+export async function getAllProduct(req, res) {
+  try {
+    const { search, maxPrice, minPrice } = req.params;
+
+    const maximumPrice = parseInt(maxPrice);
+    const minimumPrice = parseInt(minPrice);
+
+    const products = await Product.find({
+      altNames: { $regex: search, $options: "i" },
+      price: { $gte: maximumPrice, $lte: minimumPrice },
+    });
+
+    // Return response
+    res.status(200).json({});
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve products",
       error: error.message,
     });
   }
