@@ -119,19 +119,33 @@ export async function updateProduct(req, res) {
 
 export async function getAllProduct(req, res) {
   try {
-    const { search, maxPrice, minPrice } = req.params;
+    const { search = "", maxPrice, minPrice } = req.query;
+    let products = [];
+    console.log("ssssssssssssssssssssssssssssss", search);
 
     const maximumPrice = parseInt(maxPrice);
     const minimumPrice = parseInt(minPrice);
 
-    const products = await Product.find({
-      altNames: { $regex: search, $options: "i" },
-      price: { $gte: maximumPrice, $lte: minimumPrice },
-    });
+    if (!isNaN(maximumPrice) && !isNaN(minimumPrice)) {
+      products = await Product.find({
+        altNames: { $regex: search, $options: "i" },
+        price: { $gte: minimumPrice, $lte: maximumPrice },
+      });
+    } else {
+      products = await Product.find({
+        altNames: { $regex: search, $options: "i" },
+      });
+    }
 
-    // Return response
-    res.status(200).json({});
+    if (products.length === 0) {
+      return res.status(404).json({
+        message: "No product found",
+      });
+    }
+
+    res.status(200).json({ products });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve products",
