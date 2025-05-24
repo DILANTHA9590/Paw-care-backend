@@ -68,7 +68,7 @@ app.use("/api/otp", otpRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/reviews", reviewRouter);
 app.use("/api/products", productRouter);
-app.use("api/medical", medicalHistoryRouter);
+app.use("/api/medical", medicalHistoryRouter);
 
 const port = process.env.port;
 
