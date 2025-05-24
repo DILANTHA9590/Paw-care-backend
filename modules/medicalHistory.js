@@ -27,7 +27,9 @@ const medicalHistorySchema = new mongoose.Schema({
       required: true,
     },
   ],
- corrected prescription field type
+  prescription: {
+    type: String,
+  },
   notes: {
     type: String,
   },
