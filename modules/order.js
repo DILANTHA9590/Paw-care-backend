@@ -7,12 +7,22 @@ const orderSchema = new mongoose.Schema({
     unique: true,
   },
 
-  email: {
+  name: {
+    type: String,
+    required: true,
+  },
+  mobileNumber: {
     type: String,
     required: true,
   },
 
-  mobileNumber: {
+  address: {
+    type: String,
+    required: true,
+  },
+
+  email: {
+    //back end can validate
     type: String,
     required: true,
   },
