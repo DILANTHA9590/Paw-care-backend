@@ -11,6 +11,7 @@ import bookingRouter from "./routes/bookingRoute.js";
 import reviewRouter from "./routes/reviewRoute.js";
 import productRouter from "./routes/productRoute.js";
 import medicalHistoryRouter from "./routes/medicalHistoryRoute.js";
+import orderRouter from "./routes/orderRoute.js";
 
 // import jwt from "jsonwebtoken";
 
@@ -69,6 +70,7 @@ app.use("/api/bookings", bookingRouter);
 app.use("/api/reviews", reviewRouter);
 app.use("/api/products", productRouter);
 app.use("/api/medical", medicalHistoryRouter);
+app.use("/api/orders", orderRouter);
 
 const port = process.env.port;
 
