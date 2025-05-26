@@ -166,3 +166,35 @@ export async function getOrdersByAdmin(req, res) {
     });
   }
 }
+
+export async function tryTest(req, res) {
+  let productdata = [];
+  try {
+    const { orderedItems } = req.body;
+
+    for (const items of orderedItems) {
+      const prodcutId = items.productId;
+      console.log(prodcutId);
+      const productbyAll = await Product.findOne({ productId: prodcutId });
+
+      const adddata = {
+        productId: productbyAll.productId,
+        name: productbyAll.productName,
+        price: productbyAll.price,
+        image: productbyAll.image[0],
+      };
+
+      productdata.push(adddata);
+    }
+
+    // orderedItems.map((val) => {
+    //   const prodcutId = val.prodcutId;
+
+    //   const productbyAll = await Product.findOne({productId});
+
+    // });
+    // console.log(orderedItems);
+
+    console.log(productdata);
+  } catch (error) {}
+}
