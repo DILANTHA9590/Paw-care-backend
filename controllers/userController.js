@@ -83,6 +83,14 @@ export async function loginUser(req, res) {
 
     let user = await User.findOne({ email });
 
+    if (
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      !email.includes("@")
+    ) {
+      return res.status(400).json({ message: "Invalid input types" });
+    }
+
     if (!user) {
       user = await Doctor.findOne({ email });
     }
