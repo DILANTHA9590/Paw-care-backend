@@ -12,6 +12,7 @@ import reviewRouter from "./routes/reviewRoute.js";
 import productRouter from "./routes/productRoute.js";
 import medicalHistoryRouter from "./routes/medicalHistoryRoute.js";
 import orderRouter from "./routes/orderRoute.js";
+import { requestLogger } from "./utils.js/userTracking.js";
 
 // import jwt from "jsonwebtoken";
 
@@ -19,6 +20,7 @@ dotenv.config();
 const app = express();
 
 app.use(bodyParser.json());
+app.use(requestLogger);
 
 const mongoUrl = process.env.MONGODB_URL;
 
@@ -42,11 +44,17 @@ app.use((req, res, next) => {
       // If token is valid, attach decoded data to req.user
 
       req.user = decoded;
+      const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+      console.log("User IP:", ip);
+      req.ip;
 
       next(); // Continue to the next middleware/route handler
     });
   } else {
     // No token is present, just continue to the next middleware/route handler
+    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    console.log("User IP:", ip);
+    req.ip;
     next();
   }
 });
