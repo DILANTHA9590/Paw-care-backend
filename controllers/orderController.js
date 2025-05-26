@@ -1,4 +1,5 @@
 import Order from "../modules/order.js";
+import Product from "../modules/product.js";
 import { isAdmin, isCustomer } from "../utils.js/adminAndCustomerValidation.js";
 import { checkRequredField } from "../utils.js/checkRequiredField.js";
 import Stripe from "stripe";
@@ -12,6 +13,7 @@ export const createOrder = async (req, res) => {
     const { name, mobileNumber, address, email, orderedItems, amount } =
       req.body;
 
+    updateOrderStockCount(orderedItems);
     //  Create Stripe Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
@@ -47,3 +49,43 @@ export const createOrder = async (req, res) => {
     res.status(500).json({ message: "Server error. Payment not initiated." });
   }
 };
+
+async function updateOrderStockCount(orderedItems) {
+  try {
+    for (const item of orderedItems) {
+      const productId = item.productId;
+      const orderedQty = parseInt(item.quantity); // convert number
+
+      const product = await Product.findOne({ productId });
+
+      if (!product) {
+        console.log(`Product ${productId} not found`);
+        continue;
+      }
+
+      if (product.quantityInStock >= orderedQty) {
+        const newQty = product.quantityInStock - orderedQty;
+        await Product.updateOne(
+          { productId: productId },
+          {
+            $set: {
+              quantityInStock: newQty,
+            },
+          }
+        );
+        console.log(
+          `Stock updated for ${productId}. Remaining: ${product.quantityInStock}`
+        );
+
+        const data = await Product.findOne({ productId });
+        console.log("data 1", data);
+      } else {
+        console.log(
+          `Insufficient stock for ${productId}. Available: ${product.quantityInStock}, Requested: ${orderedQty}`
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Error in updating stock count:", error);
+  }
+}
