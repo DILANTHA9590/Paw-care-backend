@@ -168,6 +168,7 @@ export async function getOrdersByAdmin(req, res) {
 }
 
 export async function tryTest(req, res) {
+  console.log("user ip xxx", req.info);
   let productdata = [];
   try {
     const { orderedItems } = req.body;
@@ -186,6 +187,13 @@ export async function tryTest(req, res) {
 
       productdata.push(adddata);
     }
+
+    const clientInfo = req.clientInfo || {};
+
+    res.json({
+      message: "Ok",
+      clientInfo,
+    });
 
     // orderedItems.map((val) => {
     //   const prodcutId = val.prodcutId;
