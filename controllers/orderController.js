@@ -89,3 +89,32 @@ async function updateOrderStockCount(orderedItems) {
     console.error("Error in updating stock count:", error);
   }
 }
+
+export async function getOrdersByCustomerId(req, res) {
+  try {
+    if (!isCustomer(req) && !isAdmin(req)) {
+      return res.status(403).json({
+        message: " Please login to  first view your Order",
+      });
+    }
+
+    const email = req.user.email;
+    const orderData = await Order.find({ email });
+
+    if (orderData.length == 0) {
+      return res.status(404).json({
+        message: " No Orders found",
+        orderData: [],
+      });
+    }
+
+    res.status(200).json({
+      orderData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Some thing went a wrong please try again",
+      error: error.message,
+    });
+  }
+}
