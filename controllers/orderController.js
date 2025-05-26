@@ -118,3 +118,36 @@ export async function getOrdersByCustomerId(req, res) {
     });
   }
 }
+
+export async function getOrdersByAdmin(req, res) {
+  try {
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        message: "Please login to an admin account",
+      });
+    }
+
+    const { searchQuery = "" } = req.query;
+
+    // Search orders by orderId using regex
+    const orderData = await Order.find({
+      orderId: { $regex: searchQuery },
+    });
+
+    if (!orderData || orderData.length === 0) {
+      return res.status(404).json({
+        message: "No orders found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Orders fetched successfully",
+      data: orderData,
+    });
+  } catch (error) {
+    console.error("Error retrieving orders:", error);
+    return res.status(500).json({
+      message: "Server error while fetching orders",
+    });
+  }
+}
