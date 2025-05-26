@@ -37,7 +37,7 @@ export const createOrder = async (req, res) => {
       name,
       mobileNumber,
       address,
-      email,
+      email: req.user.email,
       orderedItems,
       paymentId: paymentIntent.id,
     });
