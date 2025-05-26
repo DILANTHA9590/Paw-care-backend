@@ -5,9 +5,10 @@ import { checkRequredField } from "../utils.js/checkRequiredField.js";
 import Stripe from "stripe";
 import { v4 as uuidv4 } from "uuid";
 
-// const strip_key = process.env.STRIPE_SECRET_KEY;
+// product creation--------------------------------------------------------------->
 
 export const createOrder = async (req, res) => {
+  console.log(req.user.type);
   if (!isCustomer(req)) {
     return res.status(403).json({
       message: "Access denied. Please log in first to create an order.",
@@ -19,7 +20,8 @@ export const createOrder = async (req, res) => {
     const { name, mobileNumber, address, email, orderedItems, amount } =
       req.body;
 
-    updateOrderStockCount(orderedItems);
+    updateOrderStockCount(orderedItems); //pass orderitem for update order count
+
     //  Create Stripe Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
@@ -42,7 +44,7 @@ export const createOrder = async (req, res) => {
       paymentId: paymentIntent.id,
     });
 
-    await order.save(); // Corrected
+    await order.save();
 
     // Send response to frontend
     res.status(200).json({
@@ -56,6 +58,8 @@ export const createOrder = async (req, res) => {
   }
 };
 
+// update stock count using orderedItems --------------------------------------------------->
+
 async function updateOrderStockCount(orderedItems) {
   try {
     for (const item of orderedItems) {
@@ -68,6 +72,8 @@ async function updateOrderStockCount(orderedItems) {
         console.log(`Product ${productId} not found`);
         continue;
       }
+
+      // Update product stock
 
       if (product.quantityInStock >= orderedQty) {
         const newQty = product.quantityInStock - orderedQty;
@@ -95,6 +101,8 @@ async function updateOrderStockCount(orderedItems) {
     console.error("Error in updating stock count:", error);
   }
 }
+
+//get product by using customer Id
 
 export async function getOrdersByCustomerId(req, res) {
   try {
@@ -125,6 +133,8 @@ export async function getOrdersByCustomerId(req, res) {
   }
 }
 
+// Get all orders (admin only), with optional search by orderId------------------------------------------------->
+
 export async function getOrdersByAdmin(req, res) {
   try {
     if (!isAdmin(req)) {
@@ -138,8 +148,7 @@ export async function getOrdersByAdmin(req, res) {
     // Search orders by orderId using regex
     const orderData = await Order.find({
       orderId: { $regex: searchQuery },
-    });
-
+    }).sort({ date: -1 });
     if (!orderData || orderData.length === 0) {
       return res.status(404).json({
         message: "No orders found",
