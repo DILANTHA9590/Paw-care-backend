@@ -8,6 +8,12 @@ import { v4 as uuidv4 } from "uuid";
 // const strip_key = process.env.STRIPE_SECRET_KEY;
 
 export const createOrder = async (req, res) => {
+  if (!isCustomer(req)) {
+    return res.status(403).json({
+      message: "Access denied. Please log in first to create an order.",
+    });
+  }
+
   const stripe = new Stripe(process.env.STRIPE_KEY);
   try {
     const { name, mobileNumber, address, email, orderedItems, amount } =
