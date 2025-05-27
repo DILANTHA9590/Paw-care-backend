@@ -56,7 +56,7 @@ export const createOrder = async (req, res) => {
         quantity: item.quantity,
         price: findproduct.price,
       };
-      console.log(product);
+
       newproductData.push(product);
     }
     orderData.orderedItems = newproductData;
@@ -66,8 +66,6 @@ export const createOrder = async (req, res) => {
     orderData.email = req.user.email;
 
     orderData.paymentId = paymentIntent.id;
-
-    console.log("works well", orderData);
 
     //  Create Order Instance
     const order = new Order(orderData);
