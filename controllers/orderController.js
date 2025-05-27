@@ -206,3 +206,49 @@ export async function tryTest(req, res) {
     console.log(productdata);
   } catch (error) {}
 }
+
+export async function products(req, res) {
+  console.log("kl");
+  try {
+    const products = req.body;
+    const {
+      orderId,
+      name,
+      mobileNumber,
+      address,
+      email,
+      orderedItems,
+      date,
+      paymentId,
+      status,
+    } = products;
+    console.log(orderedItems);
+    const newproductData = [];
+    for (const item of orderedItems) {
+      const productId = item.productId;
+
+      const findproduct = await Product.findOne({ productId: productId });
+
+      if (!findproduct) {
+        console.log("No product id found", productId);
+        continue;
+      }
+
+      const product = {
+        productid: findproduct.productId,
+        productImage: findproduct.image[0],
+        productName: findproduct.productName,
+        quantity: item.quantity,
+        price: findproduct.price,
+      };
+      console.log(product);
+      newproductData.push(product);
+    }
+    products.orderedItems = newproductData;
+    // console.log(newproductData);
+
+    console.log(products);
+  } catch (error) {
+    console.log(error);
+  }
+}
