@@ -33,6 +33,8 @@ connection.once("open", () => {
 
 app.use((req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
+  const rawIp = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+  const ip = rawIp.split(",")[0].trim(); // Use the first IP if there are multiple
 
   if (token) {
     jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
@@ -44,17 +46,15 @@ app.use((req, res, next) => {
       // If token is valid, attach decoded data to req.user
 
       req.user = decoded;
-      const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-      console.log("User IP:", ip);
-      req.ip;
+      req.clientIp = ip; // ✅ Save IP to request object (optional)
+      console.log("✅ Authenticated User IP:", ip);
 
       next(); // Continue to the next middleware/route handler
     });
   } else {
     // No token is present, just continue to the next middleware/route handler
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-    console.log("User IP:", ip);
-    req.ip;
+    req.clientIp = ip; // ✅ Save IP to request object (optional)
+    console.log("✅ Authenticated User IP:", ip);
     next();
   }
 });
