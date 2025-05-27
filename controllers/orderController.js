@@ -8,49 +8,77 @@ import { v4 as uuidv4 } from "uuid";
 // product creation--------------------------------------------------------------->
 
 export const createOrder = async (req, res) => {
-  console.log(req.user.type);
-  if (!isCustomer(req)) {
-    return res.status(403).json({
-      message: "Access denied. Please log in first to create an order.",
-    });
-  }
-
-  const stripe = new Stripe(process.env.STRIPE_KEY);
   try {
-    const { name, mobileNumber, address, email, orderedItems, amount } =
-      req.body;
+    if (!isCustomer(req)) {
+      return res.status(403).json({
+        message: "Access denied. Please log in first to create an order.",
+      });
+    }
 
-    updateOrderStockCount(orderedItems); //pass orderitem for update order count
+    const stripe = new Stripe(process.env.STRIPE_KEY);
 
     //  Create Stripe Payment Intent
+    const amount = 3000;
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: "usd",
       metadata: { integration_check: "accept_a_payment" },
     });
 
-    //create order id
+    const orderData = req.body;
+
+    let { orderedItems } = orderData;
+
+    updateOrderStockCount(orderedItems); //pass orderitem for update order count
+
+    //create unique order id
+
     const ordersCount = await Order.countDocuments();
-    const orderId = "ORD#-" + Math.floor(Math.random() * 10000) + ordersCount;
+    const oid = "ORD#-" + Math.floor(Math.random() * 10000) + ordersCount;
+
+    // get  prodyct data using productid(product validate using product id);
+
+    const newproductData = [];
+    for (const item of orderedItems) {
+      const productId = item.productId;
+
+      const findproduct = await Product.findOne({ productId: productId });
+
+      if (!findproduct) {
+        console.log("No product id found", productId);
+        continue;
+      }
+
+      const product = {
+        productid: findproduct.productId,
+        productImage: findproduct.image[0],
+        productName: findproduct.productName,
+        quantity: item.quantity,
+        price: findproduct.price,
+      };
+      console.log(product);
+      newproductData.push(product);
+    }
+    orderData.orderedItems = newproductData;
+
+    orderData.orderId = oid;
+
+    orderData.email = req.user.email;
+
+    orderData.paymentId = paymentIntent.id;
+
+    console.log("works well", orderData);
 
     //  Create Order Instance
-    const order = new Order({
-      orderId: orderId,
-      name,
-      mobileNumber,
-      address,
-      email: req.user.email,
-      orderedItems,
-      paymentId: paymentIntent.id,
-    });
+    const order = new Order(orderData);
 
     await order.save();
 
-    // Send response to frontend
+    // // Send response to frontend
     res.status(200).json({
       message: "Order created. Proceed to payment.",
       clientSecret: paymentIntent.client_secret,
-      orderId: order.orderId,
+      orderId: oid,
     });
   } catch (err) {
     console.error(err);
@@ -164,91 +192,5 @@ export async function getOrdersByAdmin(req, res) {
     return res.status(500).json({
       message: "Server error while fetching orders",
     });
-  }
-}
-
-export async function tryTest(req, res) {
-  console.log("user ip xxx", req.info);
-  let productdata = [];
-  try {
-    const { orderedItems } = req.body;
-
-    for (const items of orderedItems) {
-      const prodcutId = items.productId;
-      console.log(prodcutId);
-      const productbyAll = await Product.findOne({ productId: prodcutId });
-
-      const adddata = {
-        productId: productbyAll.productId,
-        name: productbyAll.productName,
-        price: productbyAll.price,
-        image: productbyAll.image[0],
-      };
-
-      productdata.push(adddata);
-    }
-
-    const clientInfo = req.clientInfo || {};
-
-    res.json({
-      message: "Ok",
-      clientInfo,
-    });
-
-    // orderedItems.map((val) => {
-    //   const prodcutId = val.prodcutId;
-
-    //   const productbyAll = await Product.findOne({productId});
-
-    // });
-    // console.log(orderedItems);
-
-    console.log(productdata);
-  } catch (error) {}
-}
-
-export async function products(req, res) {
-  console.log("kl");
-  try {
-    const products = req.body;
-    const {
-      orderId,
-      name,
-      mobileNumber,
-      address,
-      email,
-      orderedItems,
-      date,
-      paymentId,
-      status,
-    } = products;
-    console.log(orderedItems);
-    const newproductData = [];
-    for (const item of orderedItems) {
-      const productId = item.productId;
-
-      const findproduct = await Product.findOne({ productId: productId });
-
-      if (!findproduct) {
-        console.log("No product id found", productId);
-        continue;
-      }
-
-      const product = {
-        productid: findproduct.productId,
-        productImage: findproduct.image[0],
-        productName: findproduct.productName,
-        quantity: item.quantity,
-        price: findproduct.price,
-      };
-      console.log(product);
-      newproductData.push(product);
-    }
-    products.orderedItems = newproductData;
-    // console.log(newproductData);
-
-    console.log(products);
-  } catch (error) {
-    console.log(error);
   }
 }
