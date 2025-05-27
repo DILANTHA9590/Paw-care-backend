@@ -33,6 +33,7 @@ const orderSchema = new mongoose.Schema({
       prodcutImage: { type: String },
       productName: { type: String },
       quantity: { type: String, default: 1 },
+      price: { type: Number },
     },
   ],
 
