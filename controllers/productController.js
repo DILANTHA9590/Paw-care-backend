@@ -2,6 +2,8 @@ import Product from "../modules/product.js";
 import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
 import { checkRequredField } from "../utils.js/checkRequiredField.js";
 
+// create product ---------------------------------------------------------->
+
 export async function createProduct(req, res) {
   try {
     if (!isAdmin(req)) {
@@ -44,6 +46,7 @@ export async function createProduct(req, res) {
   }
 }
 
+//delete product using product id------------------------------------------------------>
 export async function deleteProduct(req, res) {
   try {
     // Check admin access
@@ -78,6 +81,8 @@ export async function deleteProduct(req, res) {
     });
   }
 }
+
+//update Products by id------------------------------------------------------------->
 
 export async function updateProduct(req, res) {
   try {
@@ -117,11 +122,12 @@ export async function updateProduct(req, res) {
   }
 }
 
+//Get All product details------------------------------------------------------------------------>
+
 export async function getAllProduct(req, res) {
   try {
     const { search = "", maxPrice, minPrice } = req.query;
     let products = [];
-    console.log("ssssssssssssssssssssssssssssss", search);
 
     const maximumPrice = parseInt(maxPrice);
     const minimumPrice = parseInt(minPrice);
