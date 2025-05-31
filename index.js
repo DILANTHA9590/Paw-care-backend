@@ -13,11 +13,14 @@ import productRouter from "./routes/productRoute.js";
 import medicalHistoryRouter from "./routes/medicalHistoryRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import { requestLogger } from "./utils.js/userTracking.js";
-
+import cors from "cors";
 // import jwt from "jsonwebtoken";
 
 dotenv.config();
 const app = express();
+
+// Enable CORS
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use(requestLogger);
