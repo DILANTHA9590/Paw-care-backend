@@ -170,10 +170,14 @@ export async function deleteUser(req, res) {
 // GET ALL USERS-------------------------------------->
 export async function getUsers(req, res) {
   console.log("run this");
-  const { email = "", firstName = "", lastName = "" } = req.query;
-  console.log(email);
-  console.log(firstName);
-  console.log(lastName);
+
+  const { searchQuery = "", page = 1, limit = 10 } = req.query;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const skip = (pageNumber - 1) * limitNumber;
+
+  console.log("Search:", searchQuery);
+  console.log("Page:", pageNumber, "Limit:", limitNumber);
 
   try {
     if (!isAdmin(req)) {
@@ -181,24 +185,41 @@ export async function getUsers(req, res) {
         message: "Access denied. You are not an admin user.",
       });
     }
-    // const users = await User.find();
-    const users = await User.find({
-      lastName: { $regex: lastName, $options: "i" },
-      email: { $regex: email, $options: "i" },
-      firstName: { $regex: firstName, $options: "i" },
-    });
+
+    const searchFilter = {
+      $or: [
+        { email: { $regex: searchQuery, $options: "i" } },
+        { firstName: { $regex: searchQuery, $options: "i" } },
+        { lastName: { $regex: searchQuery, $options: "i" } },
+      ],
+    };
+
+    const users = await User.find(searchFilter)
+      .skip(skip)
+      .limit(limitNumber)
+      .exec();
+
+    const totalUsers = await User.countDocuments(searchFilter);
+
     if (users.length === 0) {
       return res.status(200).json({
         message: "No Users Found",
         users: [],
+        page: pageNumber,
+        totalPages: 0,
+        totalUsers: 0,
       });
     }
+
     res.status(200).json({
-      message: " User retrive succsess",
+      message: "Users retrieved successfully",
       users,
+      page: pageNumber,
+      totalPages: Math.ceil(totalUsers / limitNumber),
+      totalUsers,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       message: "Internal server error. Unable to retrieve users.",
       errorDetails: error.message,
