@@ -159,3 +159,87 @@ export async function getAllProduct(req, res) {
     });
   }
 }
+
+export async function getAllProductByAdmin(req, res) {
+  console.log("inside this");
+  try {
+    const { searchQuery = "", page = 1, limit = 10 } = req.query;
+    console.log("search query", searchQuery);
+
+    // Convert page and limit to integers
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    let filter = {
+      $or: [
+        { productId: { $regex: searchQuery } },
+        { altNames: { $regex: searchQuery, $options: "i" } },
+      ],
+    };
+
+    // Fetch paginated products
+    const products = await Product.find(filter).skip(skip).limit(limitNumber);
+
+    const totalCount = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalCount / limitNumber);
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        message: "No product found",
+        products: [],
+        currentPage: pageNumber,
+        totalPages,
+        totalCount,
+      });
+    }
+
+    res.status(200).json({
+      products,
+      currentPage: pageNumber,
+      totalPages,
+      totalCount,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+// export async function getAlslProductByAdmin(req, res) {
+//   console.log("inside this");
+//   try {
+//     const { searchQuery = "", price } = req.query;
+
+//     let filter = {};
+
+//     // Add search query filter if provided
+//     if (searchQuery.trim() !== "") {
+//       filter.$or = [
+//         { productId: { $regex: searchQuery, $options: "i" } },
+//         { altNames: { $regex: searchQuery, $options: "i" } },
+//       ];
+//     }
+
+//     // Add price filter if provided
+//     if (price) {
+//       filter.price = price;
+//     }
+
+//     console.log("filter =>", filter);
+
+//     const products = await Product.find(filter);
+
+//     if (products.length === 0) {
+//       return res.status(404).json({
+//         message: "No product found",
+//         products: [],
+//       });
+//     }
+
+//     res.status(200).json({ products });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// }
