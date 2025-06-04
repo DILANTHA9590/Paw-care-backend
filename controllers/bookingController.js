@@ -63,31 +63,45 @@ export async function getAllBooking(req, res) {
       });
     }
 
-    const { searchQuery = "" } = req.query;
+    const { searchQuery = "", page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
 
-    // Search bookings by bookingId, email, status, or date`
-
-    const bookingData = await Booking.find({
+    // Search filter
+    const filter = {
       $or: [
         { bookingId: { $regex: searchQuery } },
         { email: { $regex: searchQuery, $options: "i" } },
         { status: { $regex: searchQuery, $options: "i" } },
       ],
-    }).sort({ createdAt: -1 });
+    };
 
-    if (bookingData.length == 0) {
+    // Get total count
+    const totalBookings = await Booking.countDocuments(filter);
+
+    // Get paginated results
+    const bookingData = await Booking.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber);
+
+    if (bookingData.length === 0) {
       return res.status(404).json({
-        message: " No found",
+        message: "No bookings found.",
       });
     }
 
     res.status(200).json({
-      bookingData,
+      totalBookings,
+      totalPages: Math.ceil(totalBookings / limitNumber),
+      currentPage: pageNumber,
+      bookings: bookingData,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Something went awrong please try again",
+      message: "Something went wrong. Please try again.",
       error: error.message,
     });
   }
