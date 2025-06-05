@@ -57,13 +57,14 @@ export async function createBooking(req, res) {
 
 export async function getAllBooking(req, res) {
   try {
-    if (!isAdmin(req)) {
-      return res.status(200).json({
-        message: "Access denied. Please log in as an admin to continue.",
-      });
-    }
+    // if (!isAdmin(req)) {
+    //   return res.status(200).json({
+    //     message: "Access denied. Please log in as an admin to continue.",
+    //   });
+    // }
 
     const { searchQuery = "", page = 1, limit = 10 } = req.query;
+    console.log(searchQuery);
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
     const skip = (pageNumber - 1) * limitNumber;
