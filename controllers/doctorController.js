@@ -45,29 +45,47 @@ export async function getAllDoctors(req, res) {
 
   try {
     if (isAdmin(req)) {
-      const { email = "", name = "", type = "" } = req.query;
-      const userData = await Doctor.find({
-        type: { $regex: type, $options: "i" },
-        email: { $regex: email, $options: "i" },
-        name: { $regex: name, $options: "i" },
-      });
+      const { searchQuery = "", page = 1, limit = 10 } = req.query;
+
+      const query = {
+        $or: [
+          { doctorId: { $regex: searchQuery, $options: "i" } },
+          { type: { $regex: searchQuery, $options: "i" } },
+          { email: { $regex: searchQuery, $options: "i" } },
+          { name: { $regex: searchQuery, $options: "i" } },
+        ],
+      };
+
+      const skip = (page - 1) * limit;
+
+      const userData = await Doctor.find(query)
+        .skip(skip)
+        .limit(parseInt(limit));
+
+      const total = await Doctor.countDocuments(query);
 
       if (userData.length === 0) {
         return res.status(404).json({
-          message: "User not found ",
+          message: "User not found",
         });
       }
 
-      if (userData) {
-        return res.status(200).json({
-          message: "data retrive succesfully",
-          userData,
-        });
-      }
+      return res.status(200).json({
+        message: "Data retrieved successfully",
+        userData,
+        pagination: {
+          totalItems: total,
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(total / limit),
+          pageSize: parseInt(limit),
+        },
+      });
+    } else {
+      return res.status(403).json({ message: "Unauthorized access" });
     }
   } catch (error) {
     res.status(500).json({
-      message: "Something went a wrong please again",
+      message: "Something went wrong. Please try again.",
       error: error.message,
     });
   }
