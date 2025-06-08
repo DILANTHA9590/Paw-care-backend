@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 
 const RewiesSchema = new mongoose.Schema({
-  // accept: {
-  //   type: Boolean,
-  //   required: true,
-
-  // },
+  accept: {
+    type: Boolean,
+    required: true,
+  },
 
   doctorId: {
     type: String,
