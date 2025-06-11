@@ -43,46 +43,46 @@ export async function updateDoctor(req, res) {
 export async function getAllDoctors(req, res) {
   console.log("inside this");
 
+  if (!isAdmin(req)) {
+    return res.status(200).json({
+      message: " Unauthorized access",
+    });
+  }
+
   try {
-    if (isAdmin(req)) {
-      const { searchQuery = "", page = 1, limit = 10 } = req.query;
+    const { searchQuery = "", page = 1, limit = 10 } = req.query;
 
-      const query = {
-        $or: [
-          { doctorId: { $regex: searchQuery, $options: "i" } },
-          { type: { $regex: searchQuery, $options: "i" } },
-          { email: { $regex: searchQuery, $options: "i" } },
-          { name: { $regex: searchQuery, $options: "i" } },
-        ],
-      };
+    const query = {
+      $or: [
+        { doctorId: { $regex: searchQuery, $options: "i" } },
+        { type: { $regex: searchQuery, $options: "i" } },
+        { email: { $regex: searchQuery, $options: "i" } },
+        { name: { $regex: searchQuery, $options: "i" } },
+      ],
+    };
 
-      const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
-      const userData = await Doctor.find(query)
-        .skip(skip)
-        .limit(parseInt(limit));
+    const userData = await Doctor.find(query).skip(skip).limit(parseInt(limit));
 
-      const total = await Doctor.countDocuments(query);
+    const total = await Doctor.countDocuments(query);
 
-      if (userData.length === 0) {
-        return res.status(404).json({
-          message: "User not found",
-        });
-      }
-
-      return res.status(200).json({
-        message: "Data retrieved successfully",
-        userData,
-        pagination: {
-          totalItems: total,
-          currentPage: parseInt(page),
-          totalPages: Math.ceil(total / limit),
-          pageSize: parseInt(limit),
-        },
+    if (userData.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
       });
-    } else {
-      return res.status(403).json({ message: "Unauthorized access" });
     }
+
+    return res.status(200).json({
+      message: "Data retrieved successfully",
+      userData,
+      pagination: {
+        totalItems: total,
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+        pageSize: parseInt(limit),
+      },
+    });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong. Please try again.",
@@ -135,7 +135,9 @@ export async function deleteDoctor(req, res) {
 
     const { doctorId } = req.params;
 
-    const result = await Doctor.findOneAndDelete({ doctorId });
+    console.log(doctorId);
+
+    const result = await Doctor.findOneAndDelete({ _id: doctorId });
 
     if (!result) {
       return res.status(200).json({
@@ -145,6 +147,7 @@ export async function deleteDoctor(req, res) {
 
     res.status(200).json({
       message: "Delete completed",
+      result,
     });
   } catch (error) {
     console.log(error);
