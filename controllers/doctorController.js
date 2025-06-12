@@ -202,3 +202,21 @@ export async function getDoctorsByDays(req, res) {
     });
   }
 }
+
+// Fetches a public list of doctors without exposing sensitive information.
+export async function getAllDoctorsByCustomerUI() {
+  // GET /api/public-doctors
+  const doctors = await Doctor.find({}, "name specialization availableTime");
+
+  if (doctors.length === 0) {
+    return res.status(200).json({
+      message: "No doctors available at the moment.",
+      doctors: [],
+    });
+  }
+
+  res.status(200).json({
+    message: "Doctors fetched successfully",
+    doctors,
+  });
+}
