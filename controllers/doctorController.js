@@ -68,8 +68,9 @@ export async function getAllDoctors(req, res) {
     const total = await Doctor.countDocuments(query);
 
     if (userData.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "User not found",
+        userData: [],
       });
     }
 
