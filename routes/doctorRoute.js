@@ -2,6 +2,7 @@ import express from "express";
 import {
   deleteDoctor,
   getAllDoctors,
+  getAllDoctorsByCustomerUI,
   getDoctor,
   getDoctorsByDays,
   updateDoctor,
@@ -14,5 +15,6 @@ doctorRouter.get("/getdoctor", getDoctor);
 doctorRouter.put("/:email", updateDoctor);
 doctorRouter.delete("/:doctorId", deleteDoctor);
 doctorRouter.get("/getbydays", getDoctorsByDays);
+doctorRouter.get("/getbookingpage", getAllDoctorsByCustomerUI);
 
 export default doctorRouter;
