@@ -18,6 +18,6 @@ doctorRouter.delete("/:doctorId", deleteDoctor);
 doctorRouter.get("/getbydays", getDoctorsByDays);
 doctorRouter.get("/getbookingpage", getAllDoctorsByCustomerUI);
 doctorRouter.get("/", getAllDoctors);
-doctorRouter.get("/getdoctordetails", getDoctorById);
+doctorRouter.get("/getdoctordetails/:doctorId", getDoctorById);
 
 export default doctorRouter;
