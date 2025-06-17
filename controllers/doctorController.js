@@ -208,7 +208,7 @@ export async function getAllDoctorsByCustomerUI(req, res) {
   try {
     const doctors = await Doctor.find(
       {},
-      "name specialization availableTime image rating experience"
+      "name availabledays specialization availableTime image rating experience "
     );
 
     if (doctors.length === 0) {
