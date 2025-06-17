@@ -178,7 +178,10 @@ export async function getDoctorsByDays(req, res) {
     // get today day name
     const dayName = days[today.getDay()];
 
-    const doctors = await Doctor.find();
+    const doctors = await Doctor.find(
+      {},
+      "name availabledays specialization availableTime image rating experience "
+    );
 
     ///filtered  doctors by days
     const filteredDoctors = doctors.filter((val) => {
@@ -208,7 +211,7 @@ export async function getAllDoctorsByCustomerUI(req, res) {
   try {
     const doctors = await Doctor.find(
       {},
-      "name availabledays specialization availableTime image rating experience "
+      "name availabledays specialization availableTime image rating experience doctorId"
     );
 
     if (doctors.length === 0) {
