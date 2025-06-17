@@ -17,6 +17,8 @@ export async function createReview(req, res) {
     const reviewsData = req.body;
     const requiredFields = ["doctorId", "customerId", "rating", "comment"];
 
+    reviewsData.customerId = req.user.id;
+
     // Validate required fields
     const validationErrors = checkRequredField(reviewsData, requiredFields);
 
@@ -46,12 +48,14 @@ export async function createReview(req, res) {
 export async function getReviewsByDoctorId(req, res) {
   try {
     const { doctorId } = req.params;
+    console.log("doctor Idj", doctorId);
 
     if (!doctorId) {
       return res.status(400).json({ message: "Doctor ID is required" });
     }
 
     const reviews = await Rewies.find({ doctorId });
+    console.log("jkol", reviews);
 
     if (reviews.length === 0) {
       return res
