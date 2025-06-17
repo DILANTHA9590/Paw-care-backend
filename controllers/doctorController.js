@@ -209,10 +209,16 @@ export async function getDoctorsByDays(req, res) {
 // Fetches a public list of doctors without exposing sensitive information.
 export async function getAllDoctorsByCustomerUI(req, res) {
   try {
-    const doctors = await Doctor.find(
-      {},
-      "name availabledays specialization availableTime image rating experience doctorId"
-    );
+    const fields =
+      "name availabledays specialization availableTime image rating experience doctorId";
+
+    // doctorId param ekak kiyala ganna
+    const doctorId = req.params.doctorId; // or req.params.doctorid according to route
+
+    // findOne walata filter ekak denna ona, e nisa:
+    const doctor = await Doctor.findOne(doctorId).select(fields);
+
+    console.log(doctor);
 
     if (doctors.length === 0) {
       return res.status(200).json({
@@ -231,5 +237,26 @@ export async function getAllDoctorsByCustomerUI(req, res) {
       message: "Server error occurred while fetching doctors.",
       error: error.message,
     });
+  }
+}
+
+export async function getDoctorById(req, res) {
+  try {
+    const doctorId = req.params.doctorId; //
+
+    if (!doctorId) {
+      return res.status(400).json({ message: "Doctor ID is required" });
+    }
+
+    const doctor = await Doctor.findOne(doctorId);
+
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    return res.status(200).json({ doctor });
+  } catch (error) {
+    console.error("Error getting doctor by ID:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 }
