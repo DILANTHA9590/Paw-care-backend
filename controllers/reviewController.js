@@ -48,24 +48,26 @@ export async function createReview(req, res) {
 export async function getReviewsByDoctorId(req, res) {
   try {
     const { doctorId } = req.params;
-    console.log("doctor Idj", doctorId);
+    const page = parseInt(req.query.page) || 1; // default page = 1
+    const limit = parseInt(req.query.limit) || 5; // default limit = 5
+    const skip = (page - 1) * limit;
 
     if (!doctorId) {
       return res.status(400).json({ message: "Doctor ID is required" });
     }
 
-    const reviews = await Rewies.find({ doctorId });
-    console.log("jkol", reviews);
-
-    if (reviews.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No reviews found for this doctor" });
-    }
+    const total = await Rewies.countDocuments({ doctorId }); // total review count
+    const reviews = await Rewies.find({ doctorId })
+      .skip(skip)
+      .limit(limit)
+      .sort({ reviewDate: -1 }); // newest first
 
     res.status(200).json({
       message: "Reviews retrieved successfully",
       reviews,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalReviews: total,
     });
   } catch (error) {
     console.error("Error fetching reviews:", error);
