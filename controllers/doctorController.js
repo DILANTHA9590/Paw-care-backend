@@ -180,7 +180,7 @@ export async function getDoctorsByDays(req, res) {
 
     const doctors = await Doctor.find(
       {},
-      "name availabledays specialization availableTime image rating experience "
+      "name availabledays specialization availableTime image rating experience doctorId "
     );
 
     ///filtered  doctors by days
