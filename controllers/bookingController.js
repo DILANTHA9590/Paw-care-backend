@@ -29,9 +29,11 @@ export async function createBooking(req, res) {
     //get for create booking id
 
     let totalCount = await Booking.countDocuments({});
-
-    const complteId = "BID00" + totalCount + 1; //booking id
+    totalCount = totalCount + 1;
+    const complteId = "BID00" + totalCount; //booking id
     todayCount += 1;
+
+    console.log("booking_id", complteId);
 
     bookingData.bookingId = complteId;
     bookingData.userId = req.user.email;
@@ -39,6 +41,7 @@ export async function createBooking(req, res) {
     //it get submit from
     // bookingData.doctorId = doctorId
 
+    console.log("full one", bookingData);
     const newUser = new Booking(bookingData);
     newUser.save();
 
