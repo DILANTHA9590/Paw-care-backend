@@ -23,6 +23,8 @@ export async function createPet(req, res) {
     const newpet = new Pet(petData);
     await newpet.save();
 
+    console.log(req.user);
+
     res.status(200).json({
       message: "Pet account created success!",
     });
@@ -91,12 +93,13 @@ export async function DeletePetdetails(req, res) {
 //  Retrieve all pet profiles-------------------------------------------------->
 
 export async function getAllPets(req, res) {
+  console.log(req.user);
   try {
-    if (!isAdmin(req)) {
-      return res.status(403).json({
-        message: "Unauthorized access, please login with an admin account",
-      });
-    }
+    // if (!isAdmin(req)) {
+    //   return res.status(403).json({
+    //     message: "Unauthorized access, please login with an admin account",
+    //   });
+    // }
 
     const petData = await Pet.find();
 
@@ -143,6 +146,36 @@ export async function getMyPets(req, res) {
   } catch (error) {
     res.status(500).json({
       message: " Something went a wrong please try again later",
+      error: error.message,
+    });
+  }
+}
+
+export async function getPetIdAndNames(req, res) {
+  try {
+    if (!req.user) {
+      res.status(403).json({
+        message: "Unautherized access , please login first",
+      });
+    }
+
+    const petData = await Pet.find({ userId: req.user.email }).select(
+      "name petId"
+    );
+
+    if (!petData) {
+      return res.status(200).json({
+        message: "You haven't added any pets yet.",
+        petData: [],
+      });
+    }
+    res.status(200).json({
+      petData: petData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal server error",
       error: error.message,
     });
   }
