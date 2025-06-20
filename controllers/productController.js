@@ -6,11 +6,11 @@ import { checkRequredField } from "../utils.js/checkRequiredField.js";
 
 export async function createProduct(req, res) {
   try {
-    if (!isAdmin(req)) {
-      return res.status(200).json({
-        message: "Access denied, Please loging to admin account",
-      });
-    }
+    // if (!isAdmin(req)) {
+    //   return res.status(200).json({
+    //     message: "Access denied, Please loging to admin account",
+    //   });
+    // }
 
     const productData = req.body;
     //validate need fileds
@@ -126,32 +126,36 @@ export async function updateProduct(req, res) {
 
 export async function getAllProduct(req, res) {
   try {
-    const { search = "", maxPrice, minPrice } = req.query;
-    let products = [];
+    const { search = "", maxPrice, minPrice = 10 } = req.query;
 
     const maximumPrice = parseInt(maxPrice);
     const minimumPrice = parseInt(minPrice);
 
-    if (!isNaN(maximumPrice) && !isNaN(minimumPrice)) {
-      products = await Product.find({
-        altNames: { $regex: search, $options: "i" },
-        price: { $gte: minimumPrice, $lte: maximumPrice },
-      });
-    } else {
-      products = await Product.find({
-        altNames: { $regex: search, $options: "i" },
-      });
+    // 🎯 Build the dynamic query
+    const query = {
+      $or: [
+        { altNames: { $regex: search, $options: "i" } },
+        { brand: { $regex: search, $options: "i" } },
+        { productName: { $regex: search, $options: "i" } },
+      ],
+    };
+
+    // ✅ Only add price filter if both are valid numbers
+    if (!isNaN(minimumPrice) && !isNaN(maximumPrice)) {
+      query.price = { $gte: minimumPrice, $lte: maximumPrice };
     }
 
+    console.log("Final Query:", query);
+
+    const products = await Product.find(query);
+
     if (products.length === 0) {
-      return res.status(404).json({
-        message: "No product found",
-      });
+      return res.status(404).json({ message: "No product found" });
     }
 
     res.status(200).json({ products });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve products",
