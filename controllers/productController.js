@@ -126,23 +126,26 @@ export async function updateProduct(req, res) {
 
 export async function getAllProduct(req, res) {
   try {
-    const { search = "", maxPrice, minPrice = 10 } = req.query;
+    const { search = "", maxPrice = 30, minPrice } = req.query;
 
     const maximumPrice = parseInt(maxPrice);
     const minimumPrice = parseInt(minPrice);
 
     // 🎯 Build the dynamic query
     const query = {
-      $or: [
-        { altNames: { $regex: search, $options: "i" } },
-        { brand: { $regex: search, $options: "i" } },
-        { productName: { $regex: search, $options: "i" } },
+      $and: [
+        {
+          $or: [
+            { altNames: { $regex: search, $options: "i" } },
+            { brand: { $regex: search, $options: "i" } },
+            { productName: { $regex: search, $options: "i" } },
+          ],
+        },
       ],
     };
 
-    // ✅ Only add price filter if both are valid numbers
     if (!isNaN(minimumPrice) && !isNaN(maximumPrice)) {
-      query.price = { $gte: minimumPrice, $lte: maximumPrice };
+      query.$and.push({ price: { $gte: minimumPrice, $lte: maximumPrice } });
     }
 
     console.log("Final Query:", query);
