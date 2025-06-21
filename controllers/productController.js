@@ -126,7 +126,7 @@ export async function updateProduct(req, res) {
 
 export async function getAllProduct(req, res) {
   try {
-    const { search = "", maxPrice = 30, minPrice } = req.query;
+    const { search = "", maxPrice, minPrice } = req.query;
 
     const maximumPrice = parseInt(maxPrice);
     const minimumPrice = parseInt(minPrice);
@@ -153,7 +153,9 @@ export async function getAllProduct(req, res) {
     const products = await Product.find(query);
 
     if (products.length === 0) {
-      return res.status(404).json({ message: "No product found" });
+      return res
+        .status(200)
+        .json({ message: "No product found", products: [] });
     }
 
     res.status(200).json({ products });
