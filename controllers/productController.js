@@ -252,3 +252,33 @@ export async function getAllProductByAdmin(req, res) {
 //     res.status(500).json({ message: "Server error" });
 //   }
 // }
+export async function getProductDetails(req, res) {
+  try {
+    const { productId } = req.params;
+
+    // Check if productId is provided
+    if (!productId) {
+      return res.status(400).json({
+        message: "Product ID is required",
+      });
+    }
+
+    // Find the product by productId
+    const productData = await Product.findOne({ productId });
+
+    // If product not found, send 404 Not Found
+    if (!productData) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    // If found, send product data with 200 status
+    return res.status(200).json({ productData });
+  } catch (error) {
+    console.error("Error in getProductDetails:", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+}
