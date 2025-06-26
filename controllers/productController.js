@@ -282,3 +282,32 @@ export async function getProductDetails(req, res) {
     });
   }
 }
+
+export async function getProductForCart(req, res) {
+  try {
+    console.log("run this");
+    const id = req.params.productId;
+
+    console.log(id);
+    if (!id) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const productData = await Product.findOne({ productId: id });
+
+    if (!productData) {
+      res.status(200).json({
+        productData: null,
+      });
+    }
+
+    res.status(200).json({
+      productData,
+    });
+  } catch (error) {
+    console.error("Error in getProductDetails:", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+}
