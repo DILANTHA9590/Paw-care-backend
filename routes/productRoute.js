@@ -6,6 +6,7 @@ import {
   getAllProductByAdmin,
   getProductDetails,
   getProductForCart,
+  getQuote,
   updateProduct,
 } from "../controllers/productController.js";
 
@@ -17,6 +18,7 @@ productRouter.put("/:productId", updateProduct);
 productRouter.get("/getproduct", getAllProduct);
 productRouter.get("/getproductbyadmin", getAllProductByAdmin);
 productRouter.get("/productoverview/:productId", getProductDetails);
+productRouter.post("/quote", getQuote);
 productRouter.get("/productcart/:productId", getProductForCart);
 
 export default productRouter;
