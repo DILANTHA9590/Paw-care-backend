@@ -1,3 +1,4 @@
+import { disconnect } from "mongoose";
 import Product from "../modules/product.js";
 import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
 import { checkRequredField } from "../utils.js/checkRequiredField.js";
@@ -307,6 +308,59 @@ export async function getProductForCart(req, res) {
   } catch (error) {
     console.error("Error in getProductDetails:", error);
     return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+}
+
+// calculate product  total prices and discounts---------------------------------->
+
+export async function getQuote(req, res) {
+  try {
+    const orderedItems = req.body.orderedItems; // get ordered item arrey inside body
+
+    let total = 0;
+    let discount = 0;
+
+    for (const item of orderedItems) {
+      const id = item.productId;
+
+      // get product data using product id-------->
+      const productData = await Product.findOne({ productId: id });
+
+      if (!productData) {
+        //check null
+        continue;
+      }
+
+      const lastPrice = parseInt(productData.lastPrice);
+
+      // calculate discount price
+      if (productData.price > productData.lastPrice) {
+        const price = parseInt(productData.price);
+
+        discount = discount + (price - lastPrice) * item.qty;
+      }
+
+      //calculate total prce
+
+      total = total + lastPrice * item.qty;
+    }
+
+    console.log("total", total);
+    console.log("discount", discount);
+
+    const paymentDetails = {
+      total: total,
+      discount: discount,
+    };
+
+    res.status(200).json({
+      paymentDetails,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
       message: "Internal Server Error",
     });
   }
