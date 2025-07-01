@@ -8,8 +8,9 @@ import { v4 as uuidv4 } from "uuid";
 // product creation--------------------------------------------------------------->
 
 export const createOrder = async (req, res) => {
+  console.log("run this create order");
   try {
-    if (!isCustomer(req)) {
+    if (!isCustomer(req) && !isAdmin(req)) {
       return res.status(403).json({
         message: "Access denied. Please log in first to create an order.",
       });
@@ -18,18 +19,18 @@ export const createOrder = async (req, res) => {
     const stripe = new Stripe(process.env.STRIPE_KEY);
 
     //  Create Stripe Payment Intent
-    const amount = 3000;
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,
-      currency: "usd",
-      metadata: { integration_check: "accept_a_payment" },
-    });
+    // const amount = 300;
+    // const paymentIntent = await stripe.paymentIntents.create({
+    //   amount: amount,
+    //   currency: "usd",
+    //   metadata: { integration_check: "accept_a_payment" },
+    // });
 
     const orderData = req.body;
-
+    console.log(orderData);
     let { orderedItems } = orderData;
 
-    updateOrderStockCount(orderedItems); //pass orderitem for update order count
+    // updateOrderStockCount(orderedItems); //pass orderitem for update order count
 
     //create unique order id
 
@@ -39,6 +40,7 @@ export const createOrder = async (req, res) => {
     // get  prodyct data using productid(product validate using product id);
 
     const newproductData = [];
+    let totalAmount = 0;
     for (const item of orderedItems) {
       const productId = item.productId;
 
@@ -48,6 +50,8 @@ export const createOrder = async (req, res) => {
         console.log("No product id found", productId);
         continue;
       }
+
+      totalAmount = totalAmount + findproduct.lastPrice;
 
       const product = {
         productid: findproduct.productId,
@@ -59,6 +63,14 @@ export const createOrder = async (req, res) => {
 
       newproductData.push(product);
     }
+
+    const amount = 300;
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: totalAmount,
+      currency: "usd",
+      metadata: { integration_check: "accept_a_payment" },
+    });
+
     orderData.orderedItems = newproductData;
 
     orderData.orderId = oid;
@@ -67,16 +79,24 @@ export const createOrder = async (req, res) => {
 
     orderData.paymentId = paymentIntent.id;
 
-    //  Create Order Instance
-    const order = new Order(orderData);
+    orderData.totalPrice = totalAmount;
 
-    await order.save();
+    console.log(orderData);
+    //  Create Order Instance
+
+    console.log("total Price", totalAmount);
+    // const order = new Order(orderData);
+
+    // await order.save();
 
     // // Send response to frontend
     res.status(200).json({
       message: "Order created. Proceed to payment.",
-      clientSecret: paymentIntent.client_secret,
-      orderId: oid,
+      paymentData: {
+        clientSecret: paymentIntent.client_secret,
+        orderId: oid,
+        totalAmount,
+      },
     });
   } catch (err) {
     console.error(err);
