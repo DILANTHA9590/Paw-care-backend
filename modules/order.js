@@ -52,6 +52,11 @@ const orderSchema = new mongoose.Schema({
     default: "Pending",
     enum: ["Pending", "Processing", "Completed", "Cancelled"],
   },
+
+  totalPrice: {
+    type: String,
+    required: true,
+  },
 });
 
 const Order = mongoose.model("Order", orderSchema);
