@@ -207,3 +207,45 @@ export async function getOrdersByAdmin(req, res) {
     });
   }
 }
+
+export async function updateOrderStatus(req, res) {
+  try {
+    if (!isCustomer(req) && !isAdmin(req)) {
+      return res.status(403).json({
+        message: "Access denied. Please log in first to create an order.",
+      });
+    }
+
+    const id = req.params.orderId.trim();
+    const status = req.body.status;
+
+    if (!id && !status) {
+      res.status(200).json({
+        message: "All field required",
+      });
+      return;
+    }
+
+    const updateOrder = await Order.findOneAndUpdate(
+      { orderId: id },
+      { status: status },
+      { new: true }
+    );
+
+    if (!updateOrder) {
+      return res.status(404).json({
+        message: "Invalid Order Id",
+      });
+    }
+
+    res.status(200).json({
+      message: "Order created successfully",
+      updateOrder,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      messsage: "Server error while update Orde",
+    });
+  }
+}
