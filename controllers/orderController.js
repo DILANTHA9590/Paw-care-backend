@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 export const createOrder = async (req, res) => {
   console.log("run this create order");
   try {
+    //user validation
     if (!isCustomer(req) && !isAdmin(req)) {
       return res.status(403).json({
         message: "Access denied. Please log in first to create an order.",
@@ -18,16 +19,8 @@ export const createOrder = async (req, res) => {
 
     const stripe = new Stripe(process.env.STRIPE_KEY);
 
-    //  Create Stripe Payment Intent
-    // const amount = 300;
-    // const paymentIntent = await stripe.paymentIntents.create({
-    //   amount: amount,
-    //   currency: "usd",
-    //   metadata: { integration_check: "accept_a_payment" },
-    // });
-
     const orderData = req.body;
-    console.log(orderData);
+
     let { orderedItems } = orderData;
 
     // updateOrderStockCount(orderedItems); //pass orderitem for update order count
@@ -35,7 +28,7 @@ export const createOrder = async (req, res) => {
     //create unique order id
 
     const ordersCount = await Order.countDocuments();
-    const oid = "ORD#-" + Math.floor(Math.random() * 10000) + ordersCount;
+    const oid = "ORD" + Math.floor(Math.random() * 10000) + ordersCount;
 
     // get  prodyct data using productid(product validate using product id);
 
@@ -51,20 +44,25 @@ export const createOrder = async (req, res) => {
         continue;
       }
 
+      // check  again product total amonut
+
       totalAmount = totalAmount + findproduct.lastPrice;
+
+      // get product details using product id
 
       const product = {
         productid: findproduct.productId,
         productImage: findproduct.image[0],
         productName: findproduct.productName,
         quantity: item.quantity,
+
         price: findproduct.price,
       };
 
       newproductData.push(product);
     }
 
-    const amount = 300;
+    // genaratate payment id
     const paymentIntent = await stripe.paymentIntents.create({
       amount: totalAmount,
       currency: "usd",
@@ -81,13 +79,10 @@ export const createOrder = async (req, res) => {
 
     orderData.totalPrice = totalAmount;
 
-    console.log(orderData);
-    //  Create Order Instance
+    //create order
+    const order = new Order(orderData);
 
-    console.log("total Price", totalAmount);
-    // const order = new Order(orderData);
-
-    // await order.save();
+    await order.save();
 
     // // Send response to frontend
     res.status(200).json({
