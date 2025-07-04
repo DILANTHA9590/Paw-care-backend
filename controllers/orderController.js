@@ -210,7 +210,7 @@ export async function getOrdersByAdmin(req, res) {
 
 export async function updateOrderStatus(req, res) {
   try {
-    if (!isCustomer(req) && !isAdmin(req)) {
+    if (!isCustomer(req)) {
       return res.status(403).json({
         message: "Access denied. Please log in first to create an order.",
       });
@@ -239,13 +239,12 @@ export async function updateOrderStatus(req, res) {
     }
 
     res.status(200).json({
-      message: "Order created successfully",
-      updateOrder,
+      message: "✅ Payment successful! Thank you for your order.",
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      messsage: "Server error while update Orde",
+      messsage: "Server error while update Order",
     });
   }
 }
