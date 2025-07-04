@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createOrder,
+  deleteOrder,
   getOrdersByAdmin,
   getOrdersByCustomerId,
   updateOrderStatus,
@@ -12,5 +13,6 @@ orderRouter.post("/", createOrder);
 orderRouter.get("/", getOrdersByCustomerId);
 orderRouter.get("/admin", getOrdersByAdmin);
 orderRouter.put("/:orderId", updateOrderStatus);
+orderRouter.delete("/:orderId", deleteOrder);
 
 export default orderRouter;
