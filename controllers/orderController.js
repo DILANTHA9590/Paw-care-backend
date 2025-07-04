@@ -184,21 +184,40 @@ export async function getOrdersByAdmin(req, res) {
       });
     }
 
-    const { searchQuery = "" } = req.query;
+    const { searchQuery = "", page = 1, limit = 30 } = req.query;
 
-    // Search orders by orderId using regex
-    const orderData = await Order.find({
-      orderId: { $regex: searchQuery },
-    }).sort({ date: -1 });
+    const pageNumber = parseInt(page);
+    const pageSize = parseInt(limit);
+    const skip = (pageNumber - 1) * pageSize;
+
+    // Query with regex + pagination
+    const filter = {
+      orderId: { $regex: searchQuery, $options: "i" },
+    };
+
+    const totalOrders = await Order.countDocuments(filter);
+
+    const orderData = await Order.find(filter)
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(pageSize);
+
     if (!orderData || orderData.length === 0) {
       return res.status(404).json({
         message: "No orders found",
+        total: [],
       });
     }
 
     return res.status(200).json({
       message: "Orders fetched successfully",
       data: orderData,
+      meta: {
+        total: totalOrders,
+        page: pageNumber,
+        limit: pageSize,
+        totalPages: Math.ceil(totalOrders / pageSize),
+      },
     });
   } catch (error) {
     console.error("Error retrieving orders:", error);
@@ -246,5 +265,35 @@ export async function updateOrderStatus(req, res) {
     res.status(500).json({
       messsage: "Server error while update Order",
     });
+  }
+}
+
+export async function deleteOrder(req, res) {
+  console.log("kkkkkkkkkkkkkkkk");
+  try {
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        message: "Access denied. Please log in first to create an order.",
+      });
+    }
+    const { orderId } = req.params;
+
+    if (!orderId) {
+      return res.status(400).json({ message: "Order ID is required." });
+    }
+
+    const deletedOrder = await Order.findOneAndDelete({ orderId: orderId });
+
+    if (!deletedOrder) {
+      return res.status(200).json({ message: "Order not found." });
+    }
+
+    res.status(200).json({
+      message: `Order ${orderId} deleted successfully.`,
+      deletedOrder,
+    });
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 }
