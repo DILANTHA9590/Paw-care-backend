@@ -269,7 +269,6 @@ export async function updateOrderStatus(req, res) {
 }
 
 export async function deleteOrder(req, res) {
-  console.log("kkkkkkkkkkkkkkkk");
   try {
     if (!isAdmin(req)) {
       return res.status(403).json({
