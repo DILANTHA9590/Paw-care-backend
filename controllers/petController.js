@@ -4,7 +4,7 @@ import Pet from "../modules/pet.js";
 //  Create a new pet account-------------------------------------------------->
 export async function createPet(req, res) {
   try {
-    const petData = req.body;
+    const petData = req.body.formData;
 
     if (!isCustomer(req) && !isAdmin(req)) {
       return res.status(403).json({
@@ -15,20 +15,19 @@ export async function createPet(req, res) {
     // Generate pet ID using pet count
 
     const count = await Pet.countDocuments();
-    const petId = "PID00" + count;
+    const newPetId = "PID00" + count;
 
-    petData.petId = petId;
+    petData.petId = newPetId;
     petData.userId = req.user.email;
 
     const newpet = new Pet(petData);
     await newpet.save();
 
-    console.log(req.user);
-
     res.status(200).json({
       message: "Pet account created success!",
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: "An error occurred while saving data",
       error: error.message,
