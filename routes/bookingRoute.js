@@ -3,6 +3,7 @@ import {
   createBooking,
   deleteBooking,
   getAllBooking,
+  getBookingByCustomer,
   getBookingsByDoctorId,
   updateBooking,
   updateCompletedBooking,
@@ -12,6 +13,7 @@ const bookingRouter = express.Router();
 
 bookingRouter.post("/", createBooking);
 bookingRouter.get("/", getAllBooking);
+bookingRouter.get("/customer", getBookingByCustomer);
 bookingRouter.delete("/:bookingId", deleteBooking);
 bookingRouter.put("/:bookingId", updateBooking);
 bookingRouter.get("/doctor/:bookingId", getBookingsByDoctorId);
