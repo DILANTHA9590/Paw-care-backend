@@ -60,19 +60,25 @@ export async function createBooking(req, res) {
 
 export async function getAllBooking(req, res) {
   try {
-    // if (!isAdmin(req)) {
-    //   return res.status(200).json({
-    //     message: "Access denied. Please log in as an admin to continue.",
-    //   });
-    // }
+    // Check if the requester is an admin; if not, deny access with a message
+    if (!isAdmin(req)) {
+      return res.status(200).json({
+        message: "Access denied. Please log in as an admin to continue.",
+      });
+    }
 
+    // Extract query parameters for search, pagination (page number & limit)
     const { searchQuery = "", page = 1, limit = 10 } = req.query;
     console.log(searchQuery);
+
+    // Parse page and limit to integers
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
+
+    // Calculate how many documents to skip based on page and limit
     const skip = (pageNumber - 1) * limitNumber;
 
-    // Search filter
+    // Construct filter for search using regex on bookingId, email, or status (case-insensitive)
     const filter = {
       $or: [
         { bookingId: { $regex: searchQuery } },
@@ -81,21 +87,23 @@ export async function getAllBooking(req, res) {
       ],
     };
 
-    // Get total count
+    // Get the total number of bookings matching the filter
     const totalBookings = await Booking.countDocuments(filter);
 
-    // Get paginated results
+    // Retrieve the paginated bookings sorted by most recent (createdAt desc)
     const bookingData = await Booking.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNumber);
 
+    // If no bookings found, respond with 404 status and message
     if (bookingData.length === 0) {
       return res.status(404).json({
         message: "No bookings found.",
       });
     }
 
+    // Respond with booking data, total count, total pages, and current page info
     res.status(200).json({
       totalBookings,
       totalPages: Math.ceil(totalBookings / limitNumber),
@@ -103,6 +111,7 @@ export async function getAllBooking(req, res) {
       bookings: bookingData,
     });
   } catch (error) {
+    // Log error and respond with 500 status and error message on failure
     console.log(error);
     res.status(500).json({
       message: "Something went wrong. Please try again.",
@@ -114,33 +123,37 @@ export async function getAllBooking(req, res) {
 //delete booking for admin------------------------------------------>
 
 export async function deleteBooking(req, res) {
-  console.log("inside delete function");
   try {
-    // Check admin access
-    if (!isAdmin(req)) {
+    // Check if requester is admin or customer; deny access otherwise
+    if (!isAdmin(req) && !isCustomer(req)) {
       return res.status(403).json({
         message: "Access denied. Only admins can delete bookings.",
       });
     }
 
+    // Get booking ID from request parameters and trim whitespace
     const bookingId = req.params.bookingId.trim();
 
-    console.log(bookingId);
+    console.log(bookingId); // Log booking ID for debugging
 
+    // Attempt to find and delete the booking by _id
     const deletedBooking = await Booking.findOneAndDelete({
-      bookingId: bookingId,
+      _id: bookingId,
     });
 
+    // If no booking found to delete, return 404 error
     if (!deletedBooking) {
       return res.status(404).json({
         message: "Booking not found.",
       });
     }
 
+    // If deleted successfully, send success response
     res.status(200).json({
       message: "Booking deleted successfully.",
     });
   } catch (error) {
+    // Log any server error and send 500 response
     console.log(error);
     res.status(500).json({
       message: "Server error. Please try again.",
@@ -148,42 +161,49 @@ export async function deleteBooking(req, res) {
     });
   }
 }
+
 // update booking details------------------------------------------>
 
 export async function updateBooking(req, res) {
   console.log("inside update function");
   try {
+    // Check if user is admin, deny access if not
     if (!isAdmin(req)) {
       return res.status(404).json({
         message: "Access denied. Please log in as an admin to continue.",
       });
     }
 
-    //get bookingid and updated data
+    // Get booking ID from URL params and updated data from request body
     const bookingId = req.params.bookingId.trim();
     const bookingData = req.body;
 
+    // Validate booking ID presence
     if (!bookingId || bookingId.trim() === "") {
       return res.status(400).json({
         message: "Invalid booking ID.",
       });
     }
 
+    // Update booking document matching bookingId with new data
     const updateBooking = await Booking.findOneAndUpdate(
       { bookingId },
       bookingData
     );
 
+    // If no booking found to update, respond with 404
     if (!updateBooking) {
       return res.status(404).json({
         message: "Booking id not found",
       });
     }
 
+    // Success response when update is complete
     res.status(200).json({
       message: "Booking updated successfully.",
     });
   } catch (error) {
+    // Log and return server error
     console.log(error);
     res.status(500).json({
       message: "Server error. Please try again.",
@@ -196,27 +216,33 @@ export async function updateBooking(req, res) {
 
 export async function getBookingsByDoctorId(req, res) {
   try {
+    // Check if requester is a doctor
     if (!isDoctor(req)) {
       return res.status(403).json({
-        message: "Access denied. Please log in as an doctor to continue.",
+        message: "Access denied. Please log in as a doctor to continue.",
       });
     }
 
-    const doctorBookings = await Booking.find(
-      { doctorId: req.user.doctorId },
-      { status: "confirm" }
-    );
+    // Find bookings for the doctor with status 'confirm'
+    // Note: status filter should be inside the query object, not projection
+    const doctorBookings = await Booking.find({
+      doctorId: req.user.doctorId,
+      status: "confirm",
+    });
 
-    if (doctorid.length == 0) {
+    // If no bookings found, return 404 error
+    if (doctorBookings.length === 0) {
       return res.status(404).json({
         message: "No Booking Found",
       });
     }
 
+    // Return the bookings data with success status
     res.status(200).json({
       doctorBookings,
     });
   } catch (error) {
+    // Handle unexpected server errors
     res.status(500).json({
       message: "Server error. Please try again.",
       error: error.message,
@@ -238,9 +264,6 @@ export async function updateCompletedBooking(req, res) {
     const bookingId = req.params.bookingId.trim();
     // get  update data
     const bookingData = req.body;
-
-    console.log("bookingId", bookingId);
-    console.log("bookingData", bookingData);
 
     const updateBookig = await Booking.findOneAndUpdate(
       { bookingId },
@@ -265,7 +288,37 @@ export async function updateCompletedBooking(req, res) {
     });
   }
 }
-//doctor id
 
-//doctor can find booking history  it completd always it come  doctor id
-//on;y acces doctor id
+//get bookings by customers id------------------------------------------->
+export async function getBookingByCustomer(req, res) {
+  try {
+    // Check if user is a customer
+    if (!isCustomer(req)) {
+      return res.status(403).json({
+        message: "Please login to valid account view your details",
+      });
+    }
+
+    const userId = req.user.email;
+
+    // Await the Booking query (find instead of findOne if you expect multiple bookings)
+    const bookings = await Booking.find({ userId: userId });
+
+    // If no bookings found, send appropriate message
+    if (!bookings || bookings.length === 0) {
+      return res.status(200).json({
+        message: "No bookings found yet. Book a service to see it here!",
+      });
+    }
+
+    // If bookings found, send them in response
+    return res.status(200).json({
+      bookings: bookings,
+    });
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    return res.status(500).json({
+      message: "Internal server error. Please try again later.",
+    });
+  }
+}
