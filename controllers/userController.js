@@ -413,33 +413,41 @@ export async function getDetailsForUserProfile(req, res) {
 
 export async function AddUserImage(req, res) {
   try {
-    if (!isAdmin(req)) {
+    // Check if the user is a customer (not admin)
+    if (!isCustomer(req)) {
       return res.status(403).json({
         message: "Access denied. Admins only.",
       });
     }
 
+    // Get the image URL from request body
     const { image } = req.body;
 
+    // If no image provided, return error
     if (!image) {
       return res.status(400).json({ message: "No image provided." });
     }
 
+    // Get user email from authenticated request
     const email = req.user.email;
 
+    // Update user image in the database
     const result = await User.updateOne(
       { email: email },
       { $set: { image: image } }
     );
 
+    // If no document was modified, user not found or image unchanged
     if (result.modifiedCount === 0) {
       return res
         .status(404)
         .json({ message: "User not found or image not updated." });
     }
 
+    // Success response
     return res.status(200).json({ message: "Image updated successfully." });
   } catch (error) {
+    // Handle any server errors
     console.error(error);
     return res
       .status(500)
