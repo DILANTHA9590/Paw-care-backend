@@ -1,7 +1,7 @@
 import argon2 from "argon2";
 import User from "../modules/user.js";
 import jwt from "jsonwebtoken";
-import { isAdmin } from "../utils.js/adminAndCustomerValidation.js";
+import { isAdmin, isCustomer } from "../utils.js/adminAndCustomerValidation.js";
 import Doctor from "../modules/doctor.js";
 import nodemailer from "nodemailer";
 import Otp from "../modules/otp.js";
@@ -380,5 +380,33 @@ export async function UpdateUser(req, res) {
     res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
+  }
+}
+
+export async function getDetailsForUserProfile(req, res) {
+  console.log(req.user);
+  try {
+    if (!isCustomer(req)) {
+      return res
+        .status(403)
+        .json({ message: "Access denied. Only customers allowed." });
+    }
+
+    const email = req.user.email;
+
+    const userData = await User.findOne({ email: email });
+
+    if (!userData) {
+      // If user data is not found, send a 404 response
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // If user data is found, send it back
+    return res.status(200).json({ user: userData });
+  } catch (error) {
+    // If an unexpected error occurs, send a 500 response
+    return res
+      .status(500)
+      .json({ message: "Server error.", error: error.message });
   }
 }
