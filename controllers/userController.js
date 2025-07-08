@@ -410,3 +410,39 @@ export async function getDetailsForUserProfile(req, res) {
       .json({ message: "Server error.", error: error.message });
   }
 }
+
+export async function AddUserImage(req, res) {
+  try {
+    if (!isAdmin(req)) {
+      return res.status(403).json({
+        message: "Access denied. Admins only.",
+      });
+    }
+
+    const { image } = req.body;
+
+    if (!image) {
+      return res.status(400).json({ message: "No image provided." });
+    }
+
+    const email = req.user.email;
+
+    const result = await User.updateOne(
+      { email: email },
+      { $set: { image: image } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "User not found or image not updated." });
+    }
+
+    return res.status(200).json({ message: "Image updated successfully." });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Server error.", error: error.message });
+  }
+}
