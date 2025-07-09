@@ -15,10 +15,17 @@ const medicalHistorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  diagnosis: [
+  diagnosis: {
+    type: String,
+    required: true,
+  },
+
+  prescription: [
     {
-      type: String,
-      required: true,
+      medicine: String,
+      dosage: String,
+      duration: String,
+      instructions: String,
     },
   ],
   treatment: [
@@ -27,12 +34,7 @@ const medicalHistorySchema = new mongoose.Schema({
       required: true,
     },
   ],
-  prescription: {
-    type: String,
-  },
-  notes: {
-    type: String,
-  },
+
   nextVisit: {
     type: Date,
   },
