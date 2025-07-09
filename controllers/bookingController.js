@@ -225,11 +225,17 @@ export async function getBookingsByDoctorId(req, res) {
 
     // Find bookings for the doctor with status 'confirm'
     // Note: status filter should be inside the query object, not projection
+    const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)); // Start of today
+    const endOfDay = new Date(new Date().setHours(23, 59, 59, 999)); // End of today
+
     const doctorBookings = await Booking.find({
       doctorId: req.user.doctorId,
       status: "confirm",
-    });
-
+      createdAt: {
+        $gte: startOfDay,
+        $lt: endOfDay,
+      },
+    }).sort({ createdAt: -1 });
     // If no bookings found, return 404 error
     if (doctorBookings.length === 0) {
       return res.status(404).json({
