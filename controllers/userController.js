@@ -284,9 +284,9 @@ export async function createDoctor(user) {
 
     user.password = hashPassword;
 
-    const newUser = await new Doctor(user);
+    const newUser = new Doctor(user);
 
-    newUser.save();
+    await newUser.save();
 
     return { message: "Doctor account created successfully" };
   } catch (error) {
