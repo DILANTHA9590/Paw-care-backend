@@ -1,3 +1,4 @@
+import Booking from "../modules/booking.js";
 import MedicalHistory from "../modules/medicalHistory.js";
 import {
   isAdmin,
@@ -7,23 +8,37 @@ import {
 
 export async function createMedicalHistory(req, res) {
   try {
-    // if (!isDoctor(req)) {
-    //   return res.status(401).json({
-    //     message: "Unauthorized access, please login to doctor account",
-    //   });
-    // }
+    if (!isDoctor(req)) {
+      return res.status(401).json({
+        message: "Unauthorized access, please login to doctor account",
+      });
+    }
 
-    const medicalData = req.body;
+    const medicalData = req.body.formData;
+
     medicalData.doctorId = req.user.doctorId || medicalData.doctorId;
 
     const newHistory = new MedicalHistory(medicalData);
     await newHistory.save();
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Medical history created successfully",
       medicalHistory: newHistory,
     });
+
+    const updatedBooking = await Booking.findOneAndUpdate(
+      { petId: medicalData.petId }, // find by petId
+      { status: "completed" }, // set status to completed
+      { new: true } // return updated doc
+    );
+
+    if (!updatedBooking) {
+      return res.status(404).json({
+        message: "Medical history saved, but related Booking not found",
+      });
+    }
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: "Failed to create medical history",
       error: error.message,
