@@ -5,6 +5,7 @@ import {
   getAllBooking,
   getBookingByCustomer,
   getBookingsByDoctorId,
+  getPastBookingsByDoctorId,
   updateBooking,
   updateCompletedBooking,
 } from "../controllers/bookingController.js";
@@ -18,5 +19,6 @@ bookingRouter.delete("/:bookingId", deleteBooking);
 bookingRouter.put("/:bookingId", updateBooking);
 bookingRouter.get("/doctor", getBookingsByDoctorId);
 bookingRouter.get("/doctor/status/:bookingId", updateCompletedBooking);
+bookingRouter.get("/getpastbooking", getPastBookingsByDoctorId);
 
 export default bookingRouter;
