@@ -98,7 +98,7 @@ export async function getAllBooking(req, res) {
 
     // If no bookings found, respond with 404 status and message
     if (bookingData.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "No bookings found.",
       });
     }
@@ -228,6 +228,8 @@ export async function getBookingsByDoctorId(req, res) {
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)); // Start of today
     const endOfDay = new Date(new Date().setHours(23, 59, 59, 999)); // End of today
 
+    console.log("ssssssssssssssssssssssss", startOfDay);
+
     const doctorBookings = await Booking.find({
       doctorId: req.user.doctorId,
       status: "confirm",
@@ -238,7 +240,7 @@ export async function getBookingsByDoctorId(req, res) {
     }).sort({ createdAt: -1 });
     // If no bookings found, return 404 error
     if (doctorBookings.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "No Booking Found",
       });
     }
@@ -325,6 +327,66 @@ export async function getBookingByCustomer(req, res) {
     console.error("Error fetching bookings:", error);
     return res.status(500).json({
       message: "Internal server error. Please try again later.",
+    });
+  }
+}
+
+export async function getPastBookingsByDoctorId(req, res) {
+  try {
+    // Check if requester is a doctor
+    if (!isDoctor(req)) {
+      return res.status(403).json({
+        message: "Access denied. Please log in as a doctor to continue.",
+      });
+    }
+
+    // Find bookings for the doctor with status 'confirm'
+    // Note: status filter should be inside the query object, not projection
+    let startOfDay = new Date(new Date().setHours(0, 0, 0, 0)); // Start of today
+    let endOfDay = new Date(new Date().setHours(23, 59, 59, 999)); // End of today
+
+    const a = await Booking.find({ doctorId: req.user.doctorId });
+    console.log(a);
+
+    let { minRange, maxRange } = req.query;
+    if (minRange && maxRange) {
+      minRange = new Date(req.query.minRange);
+      maxRange = new Date(req.query.maxRange);
+    }
+
+    let doctorBookings = null;
+    if (!minRange && !maxRange) {
+      doctorBookings = await Booking.find({
+        doctorId: req.user.doctorId,
+        createdAt: { $lt: startOfDay },
+      }).sort({ createdAt: -1 });
+    } else {
+      doctorBookings = await Booking.find({
+        doctorId: req.user.doctorId,
+        createdAt: {
+          $gte: minRange,
+          $lte: maxRange,
+        },
+      }).sort({ createdAt: -1 });
+    }
+
+    if (doctorBookings.length === 0) {
+      return res.status(200).json({
+        message: "No Booking Found",
+      });
+    }
+
+    // Return the bookings data with success status
+    res.status(200).json({
+      doctorBookings,
+    });
+  } catch (error) {
+    // Handle unexpected server errors
+
+    console.log(error);
+    res.status(500).json({
+      message: "Server error. Please try again.",
+      error: error.message,
     });
   }
 }
