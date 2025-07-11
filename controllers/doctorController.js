@@ -95,7 +95,6 @@ export async function getAllDoctors(req, res) {
 // GET LOGIN DOCTOR DATA ------------------------------------------------------>
 export async function getDoctor(req, res) {
   try {
-    console.log("run inside");
     if (!isDoctor(req)) {
       return res.status(404).json({
         message: "Please login to doctor account view detail",
@@ -236,7 +235,6 @@ export async function getAllDoctorsByCustomerUI(req, res) {
 
 export async function getDoctorById(req, res) {
   try {
-    console.log("run inside");
     const doctorId = req.params.doctorId; //
 
     if (!doctorId) {
@@ -250,7 +248,7 @@ export async function getDoctorById(req, res) {
 
     console.log(doctor);
     if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
+      return res.status(200).json({ message: "Doctor not found" });
     }
 
     return res.status(200).json({ doctor });
