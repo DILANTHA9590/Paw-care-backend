@@ -25,12 +25,18 @@ export async function createMedicalHistory(req, res) {
       message: "Medical history created successfully",
       medicalHistory: newHistory,
     });
-
     const updatedBooking = await Booking.findOneAndUpdate(
-      { petId: medicalData.petId }, // find by petId
-      { status: "completed" }, // set status to completed
-      { new: true } // return updated doc
+      { petId: medicalData.petId }, // filter
+      { status: "completed" }, // update
+      {
+        new: true, // return updated doc
+        sort: { createdAt: -1 }, // pick latest by createdAt desc
+      }
     );
+
+    const data = await Booking.findOne({ petId: medicalData.petId });
+
+    console.log(data);
 
     if (!updatedBooking) {
       return res.status(404).json({
