@@ -14,6 +14,7 @@ import medicalHistoryRouter from "./routes/medicalHistoryRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import { requestLogger } from "./utils.js/userTracking.js";
 import cors from "cors";
+import adminRouter from "./routes/adminRoute.js";
 // import jwt from "jsonwebtoken";
 
 dotenv.config();
@@ -82,6 +83,7 @@ app.use("/api/reviews", reviewRouter);
 app.use("/api/products", productRouter);
 app.use("/api/medical", medicalHistoryRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/admin", adminRouter);
 
 const port = process.env.port;
 
