@@ -7,6 +7,7 @@ import {
   getDoctorById,
   getDoctorsByDays,
   updateDoctor,
+  verifyDoctor,
 } from "../controllers/doctorController.js";
 
 const doctorRouter = express.Router();
@@ -19,5 +20,6 @@ doctorRouter.get("/getbydays", getDoctorsByDays);
 doctorRouter.get("/getbookingpage", getAllDoctorsByCustomerUI);
 doctorRouter.get("/", getAllDoctors);
 doctorRouter.get("/getdoctordetails/:doctorId", getDoctorById);
+doctorRouter.get("/verify", verifyDoctor);
 
 export default doctorRouter;
