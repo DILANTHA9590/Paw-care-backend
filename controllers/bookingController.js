@@ -333,21 +333,18 @@ export async function getBookingByCustomer(req, res) {
 
 export async function getPastBookingsByDoctorId(req, res) {
   try {
-    // Check if requester is a doctor
+    // Check if the requester is a doctor; if not, deny access
     if (!isDoctor(req)) {
       return res.status(403).json({
         message: "Access denied. Please log in as a doctor to continue.",
       });
     }
 
-    // Find bookings for the doctor with status 'confirm'
-    // Note: status filter should be inside the query object, not projection
-    let startOfDay = new Date(new Date().setHours(0, 0, 0, 0)); // Start of today
-    let endOfDay = new Date(new Date().setHours(23, 59, 59, 999)); // End of today
+    // Get the start and end time of today (used to filter bookings)
+    let startOfDay = new Date(new Date().setHours(0, 0, 0, 0)); // Today at 00:00:00
+    let endOfDay = new Date(new Date().setHours(23, 59, 59, 999)); // Today at 23:59:59
 
-    const a = await Booking.find({ doctorId: req.user.doctorId });
-    console.log(a);
-
+    // Read date range (minRange, maxRange) from query params if provided
     let { minRange, maxRange } = req.query;
     if (minRange && maxRange) {
       minRange = new Date(req.query.minRange);
@@ -355,34 +352,37 @@ export async function getPastBookingsByDoctorId(req, res) {
     }
 
     let doctorBookings = null;
+
+    // If no date range given, get all past bookings before today
     if (!minRange && !maxRange) {
       doctorBookings = await Booking.find({
-        doctorId: req.user.doctorId,
-        createdAt: { $lt: startOfDay },
-      }).sort({ createdAt: -1 });
+        doctorId: req.user.doctorId, // For this doctor
+        createdAt: { $lt: startOfDay }, // Bookings before today
+      }).sort({ createdAt: -1 }); // Sort newest first
     } else {
+      // If date range given, find bookings between minRange and maxRange
       doctorBookings = await Booking.find({
         doctorId: req.user.doctorId,
         createdAt: {
-          $gte: minRange,
-          $lte: maxRange,
+          $gte: minRange, // After or on minRange
+          $lte: maxRange, // Before or on maxRange
         },
       }).sort({ createdAt: -1 });
     }
 
+    // If no bookings found, return message
     if (doctorBookings.length === 0) {
       return res.status(200).json({
         message: "No Booking Found",
       });
     }
 
-    // Return the bookings data with success status
+    // Return the list of bookings found
     res.status(200).json({
       doctorBookings,
     });
   } catch (error) {
-    // Handle unexpected server errors
-
+    // If any error happens, log it and return server error message
     console.log(error);
     res.status(500).json({
       message: "Server error. Please try again.",
