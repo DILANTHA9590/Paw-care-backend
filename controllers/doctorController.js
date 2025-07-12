@@ -257,3 +257,23 @@ export async function getDoctorById(req, res) {
     return res.status(500).json({ message: "Server error" });
   }
 }
+
+export async function verifyDoctor(req, res) {
+  try {
+    if (!isDoctor(req)) {
+      return res.status(403).json({
+        message: "Unauthorized. Please log in as a doctor to continue.",
+      });
+    }
+
+    const name = await Doctor.findOne({ email: req.user.email });
+
+    res.status(200).json({
+      result: true,
+      name: name.name,
+    });
+  } catch (error) {
+    console.error("Error getting verify doctor :", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+}
