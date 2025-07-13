@@ -6,7 +6,7 @@ import Doctor from "../modules/doctor.js";
 import nodemailer from "nodemailer";
 import Otp from "../modules/otp.js";
 
-//create user account(ADMIN/CUSTOMER/DOCTOR)--------->
+//create user account(ADMIN/CUSTOMER/DOCTOR)--------->s
 export async function createUser(req, res) {
   try {
     const userdata = req.body;
@@ -68,7 +68,6 @@ export async function createUser(req, res) {
       message: " User created success",
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: "An unexpected error occurred. Please try again later.",
       message: error.message,
@@ -313,6 +312,7 @@ export async function saveOtpAndEmail(email) {
 
 // Function to send OTP email using Nodemailer-------------------------------------------->
 export function sendOtpEmail(email, otp) {
+  // Create email transport using Gmail SMTP
   const transport = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
@@ -320,10 +320,11 @@ export function sendOtpEmail(email, otp) {
     secure: false,
     auth: {
       user: "dilantha9590@gmail.com",
-      pass: process.env.googlekey,
+      pass: process.env.googlekey, // Gmail app password or key
     },
   });
 
+  // Create the email message
   const message = {
     from: "dilantha9590@gmail.com",
     to: email,
@@ -338,42 +339,44 @@ export function sendOtpEmail(email, otp) {
   `,
   };
 
+  // Send the email
   transport.sendMail(message, (err, info) => {
     if (err) {
-      console.log(err);
+      console.log(err); // Error sending
     } else {
-      console.log(info);
+      console.log(info); // Success info
     }
   });
 }
 
 export async function UpdateUser(req, res) {
-  console.log("inside this");
+  // Get user email from URL params
   const { email } = req.params;
 
-  console.log(email);
+  // Get updated data from request body
   const { firstName, lastName, type, whatsApp } = req.body;
-  console.log(whatsApp, email);
-  console.log(req.body);
 
-  // Simple validation
+  // Check required fields
   if (!firstName || !lastName || !type || !whatsApp) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
-  console.log("pass this");
   try {
     console.log("inside this");
+
+    // Find user by email and update data
     const updatedUser = await User.findOneAndUpdate(
       { email },
       { $set: req.body },
       { new: true }
     );
 
+    // If no user found
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Return success response
     res.status(200).json({ message: "User updated successfully", updatedUser });
   } catch (error) {
     console.error("Update error:", error);
