@@ -1,5 +1,6 @@
 import Doctor from "../modules/doctor.js";
 import { isAdmin, isDoctor } from "../utils.js/adminAndCustomerValidation.js";
+import argon2 from "argon2";
 
 // UPDATE DOCTOR DETAILS---------------------------------------------------->
 export async function updateDoctor(req, res) {
@@ -41,8 +42,6 @@ export async function updateDoctor(req, res) {
 
 //GET ALL DOCTORS DETAILS---------------------------------------------------->
 export async function getAllDoctors(req, res) {
-  console.log("inside this");
-
   if (!isAdmin(req)) {
     return res.status(200).json({
       message: " Unauthorized access",
@@ -315,12 +314,14 @@ export async function createDoctor(req, res) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    const hashPassword = await argon2.hash(password);
+
     // Create new Doctor
     const newDoctor = new Doctor({
       doctorId,
       email,
       phone,
-      password,
+      hashPassword,
       name,
       specialization: specialization.split(",").map((s) => s.trim()),
       experience,
