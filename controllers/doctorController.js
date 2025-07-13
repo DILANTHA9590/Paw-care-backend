@@ -277,3 +277,69 @@ export async function verifyDoctor(req, res) {
     return res.status(500).json({ message: "Server error" });
   }
 }
+
+export async function createDoctor(req, res) {
+  if (!isAdmin(req)) {
+    return res.status(403).json({
+      message: "Please loginto admin account",
+    });
+  }
+  try {
+    // Extract data from request body
+
+    const {
+      doctorId,
+      email,
+      phone,
+      password,
+      name,
+      specialization,
+      experience,
+      availabledays,
+      availableTime,
+      image,
+    } = req.body;
+
+    // Basic validation
+    if (
+      !doctorId ||
+      !email ||
+      !phone ||
+      !password ||
+      !name ||
+      !specialization ||
+      !experience ||
+      !availabledays ||
+      !availableTime
+    ) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Create new Doctor
+    const newDoctor = new Doctor({
+      doctorId,
+      email,
+      phone,
+      password,
+      name,
+      specialization: specialization.split(",").map((s) => s.trim()),
+      experience,
+      availabledays,
+      availableTime,
+      image,
+    });
+
+    await newDoctor.save();
+
+    res.status(201).json({
+      message: "Doctor created successfully!",
+      doctor: newDoctor,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Failed to create doctor.",
+      error: error.message,
+    });
+  }
+}
