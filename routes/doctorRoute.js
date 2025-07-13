@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  createDoctor,
   deleteDoctor,
   getAllDoctors,
   getAllDoctorsByCustomerUI,
@@ -11,7 +12,7 @@ import {
 } from "../controllers/doctorController.js";
 
 const doctorRouter = express.Router();
-
+doctorRouter.post("/createdoctor", createDoctor);
 doctorRouter.get("/", getAllDoctors);
 doctorRouter.get("/getdoctor", getDoctor);
 doctorRouter.put("/:email", updateDoctor);
