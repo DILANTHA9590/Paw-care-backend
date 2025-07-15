@@ -1,3 +1,4 @@
+import Booking from "../modules/booking.js";
 import Rewies from "../modules/rewies.js";
 import {
   isAdmin,
@@ -37,9 +38,11 @@ export async function createReview(req, res) {
 
     // const
 
-    await Booking.findOneAndUpdate(
-      { customerId: req.body.customerId },
-      { isConfirm: true },
+    const id = req.body.doctorId;
+
+    const data = await Booking.findOneAndUpdate(
+      { doctorId: req.body.doctorId },
+      { isConfirm: "yes" },
       { new: true }
     );
 
