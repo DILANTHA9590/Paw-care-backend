@@ -15,6 +15,8 @@ export async function createReview(req, res) {
     }
 
     const reviewsData = req.body;
+
+    console.log(req.body);
     const requiredFields = ["doctorId", "customerId", "rating", "comment"];
 
     reviewsData.customerId = req.user.id;
@@ -32,6 +34,14 @@ export async function createReview(req, res) {
     // Save to MongoDB
     const newReview = new Rewies(reviewsData);
     const savedReview = await newReview.save();
+
+    // const
+
+    await Booking.findOneAndUpdate(
+      { customerId: req.body.customerId },
+      { isConfirm: true },
+      { new: true }
+    );
 
     res.status(201).json({
       message: "Review added successfully",

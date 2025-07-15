@@ -310,7 +310,10 @@ export async function getBookingByCustomer(req, res) {
     const userId = req.user.email;
 
     // Await the Booking query (find instead of findOne if you expect multiple bookings)
-    const bookings = await Booking.find({ userId: userId });
+    const bookings = await Booking.find(
+      { userId: userId },
+      { isConfirm: false }
+    );
 
     // If no bookings found, send appropriate message
     if (!bookings || bookings.length === 0) {

@@ -38,6 +38,7 @@ const bookingSchema = new mongoose.Schema({
   // i use this handle user reviws
   isConfirm: {
     type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,
