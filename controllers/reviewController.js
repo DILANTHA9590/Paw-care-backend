@@ -41,10 +41,16 @@ export async function createReview(req, res) {
     const id = req.body.doctorId;
 
     const data = await Booking.findOneAndUpdate(
-      { doctorId: req.body.doctorId },
+      { bookingId: req.body.bookingId },
       { isConfirm: "yes" },
       { new: true }
     );
+
+    if (!data) {
+      return res.status(404).json({
+        message: "no booking find this booking id",
+      });
+    }
 
     res.status(201).json({
       message: "Review added successfully",
