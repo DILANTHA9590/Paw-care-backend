@@ -6,6 +6,11 @@ const RewiesSchema = new mongoose.Schema({
     required: true,
   },
 
+  bookingId: {
+    type: String,
+    required: true,
+  },
+
   doctorId: {
     type: String,
     required: true,
