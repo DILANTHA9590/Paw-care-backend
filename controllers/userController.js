@@ -81,6 +81,16 @@ export async function loginUser(req, res) {
     const { email, password } = req.body;
 
     let user = await User.findOne({ email });
+    console.log(user);
+
+    if (user.type === "customer") {
+      if (user.isverify !== true) {
+        return res.status(401).json({
+          message:
+            "Your email is not verified. Please verify your email first.",
+        });
+      }
+    }
 
     if (
       typeof email !== "string" ||
@@ -109,7 +119,7 @@ export async function loginUser(req, res) {
     const isMatch = await argon2.verify(user.password, password);
 
     if (!isMatch) {
-      res.statu(401).json({
+      res.status(401).json({
         message: "Inavlid Password",
       });
     } else {
@@ -297,6 +307,33 @@ export async function createDoctor(user) {
 // Function to generate a random 4-digit OTP and save it to the database with the user's email----------------->
 export async function saveOtpAndEmail(email) {
   const otp = Math.floor(1000 + Math.random() * 9000);
+
+  sendOtpEmail(email, otp);
+
+  const data = {
+    otp: otp,
+    email: email,
+  };
+
+  const newOtp = new Otp(data);
+
+  await newOtp.save();
+}
+
+export async function requestNewOtp(req, res) {
+  const otp = Math.floor(1000 + Math.random() * 9000);
+
+  const email = req.body.email;
+
+  console.log("ssssssssssssssssss", email);
+
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    return res.status(404).json({
+      message: "Wrong Email",
+    });
+  }
 
   sendOtpEmail(email, otp);
 
