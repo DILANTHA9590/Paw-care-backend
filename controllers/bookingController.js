@@ -316,6 +316,7 @@ export async function getBookingByCustomer(req, res) {
     if (!bookings || bookings.length === 0) {
       return res.status(200).json({
         message: "No bookings found yet. Book a service to see it here!",
+        bookings: [],
       });
     }
 
