@@ -38,10 +38,13 @@ export async function createReview(req, res) {
 
     // const
 
-    const id = req.body.doctorId;
+    const id = req.body.bookingId.trim();
+    console.log("bookingid", id);
+
+    const newj = await Booking.findOne({ bookingId: id });
 
     const data = await Booking.findOneAndUpdate(
-      { bookingId: req.body.bookingId },
+      { bookingId: id },
       { isConfirm: "yes" },
       { new: true }
     );
