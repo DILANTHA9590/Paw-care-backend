@@ -157,7 +157,7 @@ export async function getOrdersByCustomerId(req, res) {
     const orderData = await Order.find({ email });
 
     if (orderData.length == 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: " No Orders found",
         orderData: [],
       });
