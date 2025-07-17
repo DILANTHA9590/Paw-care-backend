@@ -228,8 +228,6 @@ export async function getBookingsByDoctorId(req, res) {
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)); // Start of today
     const endOfDay = new Date(new Date().setHours(23, 59, 59, 999)); // End of today
 
-    console.log("ssssssssssssssssssssssss", startOfDay);
-
     const doctorBookings = await Booking.find({
       doctorId: req.user.doctorId,
       status: "confirm",
