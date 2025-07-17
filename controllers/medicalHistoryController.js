@@ -75,3 +75,27 @@ export async function getMedicalHistoryByPetId(req, res) {
     });
   }
 }
+
+// 👉 Delete one medical history record by its _id
+export async function deleteMedicalHistoryById(req, res) {
+  try {
+    const { id } = req.params; // _id from URL
+
+    const deleted = await MedicalHistory.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        message: "Medical record not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Medical record deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete medical record",
+      error: error.message,
+    });
+  }
+}
