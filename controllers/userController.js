@@ -83,7 +83,7 @@ export async function loginUser(req, res) {
     let user = await User.findOne({ email });
     console.log(user);
 
-    if (user.type === "customer") {
+    if (user?.type === "customer") {
       if (user.isverify !== true) {
         return res.status(401).json({
           message:
@@ -143,6 +143,7 @@ export async function loginUser(req, res) {
       });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message:
         "An unexpected error occurred while login the user. Please try again later.",
