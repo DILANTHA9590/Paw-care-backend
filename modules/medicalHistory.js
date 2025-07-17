@@ -11,6 +11,11 @@ const medicalHistorySchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
+
+  bookingId: {
+    type: String,
+    required: true,
+  },
   doctorId: {
     type: String,
     required: true,
