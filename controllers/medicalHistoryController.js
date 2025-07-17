@@ -21,28 +21,26 @@ export async function createMedicalHistory(req, res) {
     const newHistory = new MedicalHistory(medicalData);
     await newHistory.save();
 
-    res.status(200).json({
-      message: "Medical history created successfully",
-      medicalHistory: newHistory,
-    });
     const updatedBooking = await Booking.findOneAndUpdate(
-      { petId: medicalData.petId }, // filter
-      { status: "completed" }, // update
+      { bookingId: medicalData.bookingId },
+
       {
-        new: true, // return updated doc
-        sort: { createdAt: -1 }, // pick latest by createdAt desc
+        status: "completed",
+      },
+      {
+        new: true, // get updated doc back
       }
     );
-
-    const data = await Booking.findOne({ petId: medicalData.petId });
-
-    console.log(data);
 
     if (!updatedBooking) {
       return res.status(404).json({
         message: "Medical history saved, but related Booking not found",
       });
     }
+    res.status(200).json({
+      message: "Medical history created successfully",
+      medicalHistory: newHistory,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
