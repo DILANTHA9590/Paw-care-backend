@@ -98,8 +98,6 @@ export async function getReviewsByDoctorId(req, res) {
 }
 
 export async function getAllReviews(req, res) {
-  console.log("inside this");
-
   try {
     const { page = 1, limit = 10 } = req.query; // default page 1, limit 10
     console.log(page);
