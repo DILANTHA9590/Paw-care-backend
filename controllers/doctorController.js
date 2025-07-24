@@ -1,7 +1,7 @@
 import Doctor from "../modules/doctor.js";
 import { isAdmin, isDoctor } from "../utils.js/adminAndCustomerValidation.js";
 import argon2 from "argon2";
-
+import User from "../modules/user.js";
 // UPDATE DOCTOR DETAILS---------------------------------------------------->
 export async function updateDoctor(req, res) {
   try {
@@ -183,7 +183,8 @@ export async function getDoctorsByDays(req, res) {
 
     ///filtered  doctors by days
     const filteredDoctors = doctors.filter((val) => {
-      const days = val.availabledays.split(",");
+      const days = val.availabledays.split(",").map((day) => day.trim());
+
       return days.includes(dayName);
     });
 
@@ -259,17 +260,21 @@ export async function getDoctorById(req, res) {
 
 export async function verifyDoctor(req, res) {
   try {
-    if (!isDoctor(req)) {
+    if (!isDoctor(req) && !isAdmin(req)) {
       return res.status(403).json({
         message: "Unauthorized. Please log in as a doctor to continue.",
       });
     }
-
-    const name = await Doctor.findOne({ email: req.user.email });
+    let name = "";
+    name = await Doctor.findOne({ email: req.user.email });
+    if (!name) {
+      name = await User.findOne({ email: req.user.email });
+    }
 
     res.status(200).json({
       result: true,
       name: name.name,
+      type: name.type,
     });
   } catch (error) {
     console.error("Error getting verify doctor :", error);
@@ -286,7 +291,7 @@ export async function createDoctor(req, res) {
   try {
     // Extract data from request body
 
-    const {
+    let {
       doctorId,
       email,
       phone,
@@ -316,12 +321,14 @@ export async function createDoctor(req, res) {
 
     const hashPassword = await argon2.hash(password);
 
+    password = hashPassword;
+
     // Create new Doctor
     const newDoctor = new Doctor({
       doctorId,
       email,
       phone,
-      hashPassword,
+      password,
       name,
       specialization: specialization.split(",").map((s) => s.trim()),
       experience,
