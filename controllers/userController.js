@@ -116,7 +116,9 @@ export async function loginUser(req, res) {
       });
     }
 
-    const isMatch = await argon2.verify(user.password, password);
+    const token = jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: "1d",
+    });
 
     if (!isMatch) {
       res.status(401).json({
