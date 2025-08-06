@@ -115,10 +115,7 @@ export async function loginUser(req, res) {
         message: "Your account has block. please contact admin ",
       });
     }
-
-    const token = jwt.sign(payload, process.env.SECRET_KEY, {
-      expiresIn: "1d",
-    });
+    const isMatch = await argon2.verify(user.password, password);
 
     if (!isMatch) {
       res.status(401).json({
@@ -136,7 +133,10 @@ export async function loginUser(req, res) {
       };
 
       // Create a JWT token
-      const token = jwt.sign(payload, process.env.SECRET_KEY);
+
+      const token = jwt.sign(payload, process.env.SECRET_KEY, {
+        expiresIn: "1d",
+      });
 
       res.status(200).json({
         message: "Login successfully",
