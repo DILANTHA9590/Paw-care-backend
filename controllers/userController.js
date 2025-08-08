@@ -5,10 +5,20 @@ import { isAdmin, isCustomer } from "../utils.js/adminAndCustomerValidation.js";
 import Doctor from "../modules/doctor.js";
 import nodemailer from "nodemailer";
 import Otp from "../modules/otp.js";
+import { createUserSchema } from "../validation/validation.js";
 
 //create user account(ADMIN/CUSTOMER/DOCTOR)--------->s
 export async function createUser(req, res) {
   try {
+    const createValidate = createUserSchema.safeParse(req.body);
+
+    if (!createValidate.success) {
+      const { success, error } = createValidate;
+
+      return res.status(400).json({
+        message: "Validation Failed",
+      });
+    }
     const userdata = req.body;
 
     if (!userdata.password || userdata.password.length < 6) {
@@ -57,9 +67,9 @@ export async function createUser(req, res) {
 
     userdata.password = hashPassword;
 
-    const newUser = new User(userdata);
+    // const newUser = new User(userdata);
 
-    newUser.save();
+    // newUser.save();
 
     //send user account create  email for Otp database for email veryfication
     await saveOtpAndEmail(email);
