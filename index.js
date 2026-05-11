@@ -15,9 +15,14 @@ import orderRouter from "./routes/orderRoute.js";
 import { requestLogger } from "./utils.js/userTracking.js";
 import cors from "cors";
 import adminRouter from "./routes/adminRoute.js";
-// import jwt from "jsonwebtoken";
+import dns from "dns";
+
+// ================= DNS FIX =================
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+// ===========================================
 
 dotenv.config();
+
 const app = express();
 
 // Enable CORS
@@ -28,52 +33,47 @@ app.use(requestLogger);
 
 const mongoUrl = process.env.MONGODB_URL;
 
-mongoose.connect(mongoUrl, {});
-const connection = mongoose.connection;
+// MongoDB Connection
+mongoose
+  .connect(mongoUrl)
+  .then(() => {
+    console.log("✅ Database connected successfully");
+  })
+  .catch((error) => {
+    console.log("❌ Connection Error Occurred", error);
+  });
 
-connection.once("open", () => {
-  console.log("database connetced");
-});
-
+// Middleware
 app.use((req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
-  const rawIp = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-  const ip = rawIp.split(",")[0].trim(); // Use the first IP if there are multiple
+  const rawIp =
+    req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const ip = rawIp?.split(",")[0].trim();
 
   if (token) {
     jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
       if (error) {
-        // If token is invalid, send a 401 Unauthorized response
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // If token is valid, attach decoded data to req.user
-
       req.user = decoded;
-      req.clientIp = ip; // ✅ Save IP to request object (optional)
+      req.clientIp = ip;
+
       console.log("✅ Authenticated User IP:", ip);
 
-      next(); // Continue to the next middleware/route handler
+      next();
     });
   } else {
-    // No token is present, just continue to the next middleware/route handler
-    req.clientIp = ip; // ✅ Save IP to request object (optional)
-    console.log("✅ Authenticated User IP:", ip);
+    req.clientIp = ip;
+
+    console.log("✅ Client IP:", ip);
+
     next();
   }
 });
 
-mongoose
-  .connect(mongoUrl)
-  .then(() => {
-    console.log("database connected successfully");
-  })
-  .catch((error) => {
-    console.log("Coonnection Error Occured", error);
-  });
-
-// MIAN ROUTES---------------------------------------------------------->
-
+// Routes
 app.use("/api/users", userRouter);
 app.use("/api/doctors", doctorRouter);
 app.use("/api/pets", petRouter);
@@ -85,8 +85,8 @@ app.use("/api/medical", medicalHistoryRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/admin", adminRouter);
 
-const port = process.env.port;
+const port = process.env.PORT || 5002;
 
 app.listen(port, () => {
-  console.log(`Server is running port : ${5000}`);
+  console.log(`🚀 Server is running on port ${port}`);
 });
