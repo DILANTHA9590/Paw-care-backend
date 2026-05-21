@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     default:
       "https://th.bing.com/th/id/OIP.PKlD9uuBX0m4S8cViqXZHAHaHa?rs=1&pid=ImgDetMain",
   },
-
+//zz
   email: { type: String, required: true, unique: true },
 
   password: {

@@ -2,6 +2,7 @@ export function isCustomer(req) {
   if (!req.user) {
     return false;
   }
+  //sss 
 
   if (req.user.type != "customer") {
     return false;

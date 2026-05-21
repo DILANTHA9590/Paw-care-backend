@@ -4,6 +4,7 @@ const RewiesSchema = new mongoose.Schema({
   accept: {
     type: Boolean,
     required: true,
+    // ..ddd
   },
 
   bookingId: {

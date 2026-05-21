@@ -1,0 +1,15 @@
+services:
+  backend:
+    build: .
+
+    ports:
+      - "5002:5002"
+
+    env_file:
+      - .env
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    command: npm run dev

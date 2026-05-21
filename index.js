@@ -32,6 +32,7 @@ app.use(bodyParser.json());
 app.use(requestLogger);
 
 const mongoUrl = process.env.MONGODB_URL;
+console.log`🔗 MongoDB URL: ${mongoUrl}🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴`;
 
 // MongoDB Connection
 mongoose
@@ -89,4 +90,5 @@ const port = process.env.PORT || 5002;
 
 app.listen(port, () => {
   console.log(`🚀 Server is running on port ${port}`);
+  console.log(`🔗 MongoDB URL: ${mongoUrl}🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴`);
 });
